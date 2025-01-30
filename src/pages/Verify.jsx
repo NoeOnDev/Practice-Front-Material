@@ -17,8 +17,11 @@ export const Verify = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const userData = { email, code };
+
     try {
-      await verifyEmail(email, code);
+      await verifyEmail(userData);
       localStorage.removeItem("userEmail");
       alert("Email verified successfully!");
       navigate("/login");

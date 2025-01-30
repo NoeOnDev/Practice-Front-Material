@@ -1,15 +1,27 @@
 import { useState } from "react";
 import { Box, Button, TextField, Typography, Link } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { loginUser } from "../services/authUser";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+
+    const userData = { email, password };
+
+    try {
+      const response = await loginUser(userData);
+      localStorage.setItem("token", response.token);
+      alert("Login successful!");
+      navigate("/home");
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed. Please try again.");
+    }
   };
 
   return (
