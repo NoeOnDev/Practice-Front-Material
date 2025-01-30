@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Box, Button, TextField, Typography, Link } from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { registerUser } from "../services/authUser";
 
 export const Register = () => {
   const [name, setName] = useState("");
@@ -9,13 +10,28 @@ export const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("Confirm Password:", confirmPassword);
-    navigate("/verify");
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    const userData = {
+      name,
+      email,
+      password,
+      password_confirmation: confirmPassword,
+    };
+
+    try {
+      await registerUser(userData);
+      localStorage.setItem("userEmail", email);
+      navigate("/verify");
+    } catch (error) {
+      console.error("Registration failed:", error);
+      alert("Registration failed. Please try again.");
+    }
   };
 
   return (

@@ -1,12 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { verifyEmail } from "../services/authUser";
 
 export const Verify = () => {
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("userEmail");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+  }, []);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Verification Code:", code);
+    try {
+      await verifyEmail(email, code);
+      localStorage.removeItem("userEmail");
+      alert("Email verified successfully!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Verification failed:", error);
+      alert("Verification failed. Please try again.");
+    }
   };
 
   return (
@@ -25,6 +44,9 @@ export const Verify = () => {
     >
       <Typography variant="h4" component="h1" gutterBottom>
         Verificación
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Ingresa el código que se ha enviado a {email}
       </Typography>
       <TextField
         label="Código de Verificación"
