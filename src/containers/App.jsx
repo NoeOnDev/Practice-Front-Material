@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Login } from "../pages/Login";
 import { Register } from "../pages/Register";
 import { Verify } from "../pages/Verify";
-import DashboardLayoutNavigationLinks from "./Dashboard";
+import { DashboardLayoutNavigationLinks } from "./Dashboard";
 
 export const App = () => {
   return (

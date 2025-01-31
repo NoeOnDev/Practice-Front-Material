@@ -17,7 +17,7 @@ export const Login = () => {
       const response = await loginUser(userData);
       localStorage.setItem("token", response.token);
       alert("Login successful!");
-      navigate("/home");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
       alert("Login failed. Please try again.");

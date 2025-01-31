@@ -3,10 +3,10 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import DescriptionIcon from "@mui/icons-material/Description";
+import ContactMailIcon from "@mui/icons-material/ContactMail";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
-import { Home } from "../pages/Home";
 import { Profile } from "../pages/Profile";
 import { Contacts } from "../pages/Contacts";
 
@@ -29,9 +29,6 @@ const demoTheme = createTheme({
 function DemoPageContent({ pathname }) {
   let content;
   switch (pathname) {
-    case "/home":
-      content = <Home />;
-      break;
     case "/profile":
       content = <Profile />;
       break;
@@ -61,21 +58,16 @@ DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
-function DashboardLayoutNavigationLinks(props) {
+export const DashboardLayoutNavigationLinks = (props) => {
   const { window } = props;
 
-  const router = useDemoRouter("/home");
+  const router = useDemoRouter("/profile");
 
   const demoWindow = window !== undefined ? window() : undefined;
 
   return (
     <AppProvider
       navigation={[
-        {
-          segment: "home",
-          title: "Home",
-          icon: <DescriptionIcon />,
-        },
         {
           segment: "profile",
           title: "Profile",
@@ -84,19 +76,24 @@ function DashboardLayoutNavigationLinks(props) {
         {
           segment: "contacts",
           title: "Contacts",
-          icon: <DescriptionIcon />,
+          icon: <ContactMailIcon />,
         },
       ]}
+      branding={{
+        logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
+        title: "My Dashboard",
+        homeUrl: "/profile",
+      }}
       router={router}
       theme={demoTheme}
       window={demoWindow}
     >
-      <DashboardLayout>
+      <DashboardLayout defaultSidebarCollapsed>
         <DemoPageContent pathname={router.pathname} />
       </DashboardLayout>
     </AppProvider>
   );
-}
+};
 
 DashboardLayoutNavigationLinks.propTypes = {
   /**
@@ -105,5 +102,3 @@ DashboardLayoutNavigationLinks.propTypes = {
    */
   window: PropTypes.func,
 };
-
-export default DashboardLayoutNavigationLinks;
