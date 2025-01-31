@@ -14,10 +14,12 @@ import {
   getContacts,
   updateContact,
   deleteContact,
+  createContact,
 } from "../services/contactService";
 import { ContactsTable } from "../components/contacts/ContactsTable";
 import { ViewContactModal } from "../components/contacts/ViewContactModal";
-import { EditContactModal } from "../components/contacts/EditContactModal";
+import { ContactFormModal } from "../components/contacts/ContactFormModal";
+import AddIcon from "@mui/icons-material/Add";
 
 export const ContactsList = () => {
   const [open, setOpen] = useState(false);
@@ -29,6 +31,19 @@ export const ContactsList = () => {
   const [error, setError] = useState(null);
   const [openDelete, setOpenDelete] = useState(false);
   const [deletingContact, setDeletingContact] = useState(null);
+  const [openCreate, setOpenCreate] = useState(false);
+  const [newContact, setNewContact] = useState({
+    first_name: "",
+    last_name: "",
+    middle_name: "",
+    email: "",
+    phone_code: "+52",
+    phone_number: "",
+    estado: "CDMX",
+    address: "",
+    fechaNacimiento: null,
+    notes: "",
+  });
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -142,17 +157,80 @@ export const ContactsList = () => {
     }
   };
 
+  const handleOpenCreateModal = () => {
+    setOpenCreate(true);
+  };
+
+  const handleCloseCreate = () => {
+    setOpenCreate(false);
+    setNewContact({
+      first_name: "",
+      last_name: "",
+      middle_name: "",
+      email: "",
+      phone_code: "+52",
+      phone_number: "",
+      estado: "CDMX",
+      address: "",
+      fechaNacimiento: null,
+      notes: "",
+    });
+  };
+
+  const handleCreateChange = (event) => {
+    const { name, value } = event.target;
+    setNewContact((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleCreateSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const transformedData = {
+        first_name: newContact.first_name,
+        last_name: newContact.last_name,
+        middle_name: newContact.middle_name,
+        email: newContact.email,
+        phone_code: newContact.phone_code,
+        phone_number: newContact.phone_number,
+        state:
+          newContact.estado === "CDMX"
+            ? "Mexico City"
+            : newContact.estado === "JAL"
+              ? "Jalisco"
+              : "Nuevo Leon",
+        address: newContact.address,
+        birth_date: newContact.fechaNacimiento?.toISOString().split("T")[0],
+        notes: newContact.notes,
+      };
+
+      await createContact(transformedData);
+      const updatedContacts = await getContacts();
+      setContactos(updatedContacts);
+      alert("Contacto creado exitosamente");
+      handleCloseCreate();
+    } catch (error) {
+      console.error("Error al crear el contacto:", error);
+      alert("Error al crear el contacto");
+    }
+  };
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        overflow: "auto",
-      }}
-    >
-      <Typography variant="h4" gutterBottom>
-        Mis Contactos
-      </Typography>
+    <Box sx={{ width: "100%", height: "100%", overflow: "auto" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+        <Typography variant="h4">Mis Contactos</Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenCreateModal}
+          startIcon={<AddIcon />}
+        >
+          Nuevo Contacto
+        </Button>
+      </Box>
 
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
@@ -188,12 +266,22 @@ export const ContactsList = () => {
         onClose={handleClose}
       />
 
-      <EditContactModal
+      <ContactFormModal
+        open={openCreate}
+        contact={newContact}
+        onClose={handleCloseCreate}
+        onSubmit={handleCreateSubmit}
+        onChange={handleCreateChange}
+        title="Nuevo Contacto"
+      />
+
+      <ContactFormModal
         open={openEdit}
         contact={editingContact}
         onClose={handleCloseEdit}
         onSubmit={handleEditSubmit}
         onChange={handleEditChange}
+        title="Editar Contacto"
       />
 
       <Dialog open={openDelete} onClose={handleCloseDeleteDialog}>

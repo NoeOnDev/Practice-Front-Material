@@ -7,7 +7,6 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
 import { ContactsList } from "../pages/ContactsList";
-import { Contacts } from "../pages/Contacts";
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -30,9 +29,6 @@ function DemoPageContent({ pathname }) {
   switch (pathname) {
     case "/contacts-list":
       content = <ContactsList />;
-      break;
-    case "/contacts":
-      content = <Contacts />;
       break;
     default:
       content = <Typography>Page not found</Typography>;
@@ -71,11 +67,6 @@ export const DashboardLayoutNavigationLinks = (props) => {
         {
           segment: "contacts-list",
           title: "Lista de Contactos",
-          icon: <ContactMailIcon />,
-        },
-        {
-          segment: "contacts",
-          title: "Nuevo Contacto",
           icon: <ContactMailIcon />,
         },
       ]}

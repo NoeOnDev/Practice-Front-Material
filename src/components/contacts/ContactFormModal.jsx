@@ -17,19 +17,20 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { es } from "date-fns/locale";
 import PropTypes from "prop-types";
 
-export const EditContactModal = ({
+export const ContactFormModal = ({
   open,
   contact,
   onClose,
   onSubmit,
   onChange,
+  title
 }) => {
-  if (!contact) return null;
+  if (!open) return null;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={onSubmit}>
-        <DialogTitle>Editar Contacto</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} md={4}>
@@ -72,7 +73,7 @@ export const EditContactModal = ({
                 required
               />
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid item xs={12} md={3}>
               <FormControl fullWidth>
                 <InputLabel>Lada</InputLabel>
                 <Select
@@ -98,7 +99,7 @@ export const EditContactModal = ({
                 required
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={5}>
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select
@@ -175,10 +176,11 @@ export const EditContactModal = ({
   );
 };
 
-EditContactModal.propTypes = {
+ContactFormModal.propTypes = {
   open: PropTypes.bool.isRequired,
   contact: PropTypes.object,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
 };
