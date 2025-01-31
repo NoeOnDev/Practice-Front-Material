@@ -2,12 +2,11 @@ import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
-import DescriptionIcon from "@mui/icons-material/Description";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
-import { Profile } from "../pages/Profile";
+import { ContactsList } from "../pages/ContactsList";
 import { Contacts } from "../pages/Contacts";
 
 const demoTheme = createTheme({
@@ -29,8 +28,8 @@ const demoTheme = createTheme({
 function DemoPageContent({ pathname }) {
   let content;
   switch (pathname) {
-    case "/profile":
-      content = <Profile />;
+    case "/contacts-list":
+      content = <ContactsList />;
       break;
     case "/contacts":
       content = <Contacts />;
@@ -42,11 +41,12 @@ function DemoPageContent({ pathname }) {
   return (
     <Box
       sx={{
-        py: 4,
+        width: "100%",
+        height: "100%",
+        p: 3,
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        textAlign: "center",
       }}
     >
       {content}
@@ -61,7 +61,7 @@ DemoPageContent.propTypes = {
 export const DashboardLayoutNavigationLinks = (props) => {
   const { window } = props;
 
-  const router = useDemoRouter("/profile");
+  const router = useDemoRouter("/contacts-list");
 
   const demoWindow = window !== undefined ? window() : undefined;
 
@@ -69,20 +69,20 @@ export const DashboardLayoutNavigationLinks = (props) => {
     <AppProvider
       navigation={[
         {
-          segment: "profile",
-          title: "Profile",
-          icon: <DescriptionIcon />,
+          segment: "contacts-list",
+          title: "Lista de Contactos",
+          icon: <ContactMailIcon />,
         },
         {
           segment: "contacts",
-          title: "Contacts",
+          title: "Nuevo Contacto",
           icon: <ContactMailIcon />,
         },
       ]}
       branding={{
         logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
         title: "My Dashboard",
-        homeUrl: "/profile",
+        homeUrl: "/contacts-list",
       }}
       router={router}
       theme={demoTheme}

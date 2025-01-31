@@ -14,9 +14,11 @@
     "@emotion/styled": "^11.14.0",
     "@fontsource/roboto": "^5.1.1",
     "@mui/icons-material": "^6.4.1",
-    "@mui/material": "^6.4.1",
+    "@mui/material": "^6.4.2",
+    "@mui/x-date-pickers": "^7.24.1",
     "@toolpad/core": "^0.12.0",
     "axios": "^1.7.9",
+    "date-fns": "^2.29.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.3"
