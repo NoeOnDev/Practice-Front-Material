@@ -6,7 +6,7 @@ import ContactMailIcon from "@mui/icons-material/ContactMail";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
-import { ContactsList } from "../pages/ContactsList";
+import { Contacts } from "../pages/Contacts";
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -27,8 +27,8 @@ const demoTheme = createTheme({
 function DemoPageContent({ pathname }) {
   let content;
   switch (pathname) {
-    case "/contacts-list":
-      content = <ContactsList />;
+    case "/contacts":
+      content = <Contacts />;
       break;
     default:
       content = <Typography>Page not found</Typography>;
@@ -57,7 +57,7 @@ DemoPageContent.propTypes = {
 export const DashboardLayoutNavigationLinks = (props) => {
   const { window } = props;
 
-  const router = useDemoRouter("/contacts-list");
+  const router = useDemoRouter("/contacts");
 
   const demoWindow = window !== undefined ? window() : undefined;
 
@@ -65,7 +65,7 @@ export const DashboardLayoutNavigationLinks = (props) => {
     <AppProvider
       navigation={[
         {
-          segment: "contacts-list",
+          segment: "contacts",
           title: "Lista de Contactos",
           icon: <ContactMailIcon />,
         },
@@ -73,7 +73,7 @@ export const DashboardLayoutNavigationLinks = (props) => {
       branding={{
         logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
         title: "My Dashboard",
-        homeUrl: "/contacts-list",
+        homeUrl: "/contacts",
       }}
       router={router}
       theme={demoTheme}

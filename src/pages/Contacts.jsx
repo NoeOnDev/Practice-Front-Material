@@ -21,7 +21,7 @@ import { ViewContactModal } from "../components/contacts/ViewContactModal";
 import { ContactFormModal } from "../components/contacts/ContactFormModal";
 import AddIcon from "@mui/icons-material/Add";
 
-export const ContactsList = () => {
+export const Contacts = () => {
   const [open, setOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
@@ -220,13 +220,42 @@ export const ContactsList = () => {
 
   return (
     <Box sx={{ width: "100%", height: "100%", overflow: "auto" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h4">Mis Contactos</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 2, sm: 0 },
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            fontSize: {
+              xs: "1.5rem",
+              sm: "2rem",
+              md: "2.125rem",
+            },
+          }}
+        >
+          Mis Contactos
+        </Typography>
         <Button
           variant="contained"
           color="primary"
           onClick={handleOpenCreateModal}
           startIcon={<AddIcon />}
+          sx={{
+            fontSize: {
+              xs: "0.875rem",
+              sm: "0.9rem",
+            },
+            py: { xs: 1 },
+            px: { xs: 2 },
+            width: { xs: "100%", sm: "auto" },
+          }}
         >
           Nuevo Contacto
         </Button>
