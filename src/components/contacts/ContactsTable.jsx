@@ -11,6 +11,7 @@ import {
   import EditIcon from "@mui/icons-material/Edit";
   import DeleteIcon from "@mui/icons-material/Delete";
   import PropTypes from "prop-types";
+  import { formatDate } from "../../utils/dateUtils";
   
   export const ContactsTable = ({
     contacts,
@@ -97,7 +98,7 @@ import {
                   onClick={() => onRowClick(contact)}
                   sx={{ cursor: "pointer" }}
                 >
-                  {contact.birth_date}
+                  {formatDate(contact.birth_date)}
                 </TableCell>
                 <TableCell
                   onClick={() => onRowClick(contact)}

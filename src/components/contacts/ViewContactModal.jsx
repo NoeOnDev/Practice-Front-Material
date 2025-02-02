@@ -8,6 +8,7 @@ import {
   Grid,
 } from "@mui/material";
 import PropTypes from "prop-types";
+import { formatDate } from "../../utils/dateUtils";
 
 export const ViewContactModal = ({ open, contact, onClose }) => {
   if (!contact) return null;
@@ -41,7 +42,7 @@ export const ViewContactModal = ({ open, contact, onClose }) => {
           </Grid>
           <Grid item xs={12} md={6}>
             <Typography variant="subtitle2">Fecha de Nacimiento</Typography>
-            <Typography>{contact.birth_date}</Typography>
+            <Typography>{formatDate(contact.birth_date)}</Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="subtitle2">Notas</Typography>
