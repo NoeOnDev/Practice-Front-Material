@@ -7,6 +7,8 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
 import { Contacts } from "../pages/Contacts";
+import { AppointmentCalendar } from "../pages/AppointmentCalendar";
+import { CalendarIcon } from "@mui/x-date-pickers";
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -29,6 +31,9 @@ function DemoPageContent({ pathname }) {
   switch (pathname) {
     case "/contacts":
       content = <Contacts />;
+      break;
+    case "/calendar":
+      content = <AppointmentCalendar />;
       break;
     default:
       content = <Typography>Page not found</Typography>;
@@ -68,6 +73,11 @@ export const DashboardLayoutNavigationLinks = (props) => {
           segment: "contacts",
           title: "Lista de Contactos",
           icon: <ContactMailIcon />,
+        },
+        {
+          segment: "calendar",
+          title: "Calendario",
+          icon: <CalendarIcon />,
         },
       ]}
       branding={{
