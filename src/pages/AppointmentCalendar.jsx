@@ -63,82 +63,49 @@ export const AppointmentCalendar = () => {
       <Paper elevation={3} sx={{ height: "100%", overflow: "hidden" }}>
         <Box
           sx={{
-            p: 2,
+            p: { xs: 1, sm: 2 },
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: { xs: 1, sm: 0 },
             alignItems: "center",
             borderBottom: 1,
             borderColor: "divider",
             bgcolor: "background.default",
           }}
         >
-          <Stack direction="row" spacing={1.5} flex={1}>
-            <Button
-              variant="outlined"
-              onClick={handlePrev}
-              startIcon={<ChevronLeft />}
-              sx={{
-                height: 40,
-                minWidth: 110,
-                textTransform: "none",
-                fontSize: "0.95rem",
-              }}
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={handleNext}
-              endIcon={<ChevronRight />}
-              sx={{
-                height: 40,
-                minWidth: 110,
-                textTransform: "none",
-                fontSize: "0.95rem",
-              }}
-            >
-              Siguiente
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleToday}
-              startIcon={<Today />}
-              sx={{
-                height: 40,
-                minWidth: 100,
-                textTransform: "none",
-                fontSize: "0.95rem",
-              }}
-            >
-              Hoy
-            </Button>
-          </Stack>
-
-          <Typography
-            variant="h6"
+          <Box
             sx={{
-              textTransform: "capitalize",
-              fontSize: {
-                xs: "1.1rem",
-                sm: "1.25rem",
-              },
-              flex: 1,
-              textAlign: "center",
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              order: { xs: 1, sm: 2 },
+              mb: { xs: 1, sm: 0 },
             }}
           >
-            {title}
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                textTransform: "capitalize",
+                fontSize: {
+                  xs: "1rem",
+                  sm: "1.25rem",
+                },
+              }}
+            >
+              {title}
+            </Typography>
 
-          <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
             <FormControl size="small">
               <Select
                 value={viewMode}
                 onChange={handleViewChange}
                 sx={{
-                  minWidth: 120,
-                  height: 40,
+                  minWidth: { xs: 100, sm: 120 },
+                  height: { xs: 35, sm: 40 },
                   "& .MuiSelect-select": {
                     py: 1,
+                    fontSize: { xs: "0.875rem", sm: "0.95rem" },
                   },
                 }}
               >
@@ -149,9 +116,65 @@ export const AppointmentCalendar = () => {
               </Select>
             </FormControl>
           </Box>
+
+          <Stack
+            direction="row"
+            spacing={{ xs: 1, sm: 1.5 }}
+            sx={{
+              width: { xs: "100%", sm: "auto" },
+              order: { xs: 2, sm: 1 },
+              mr: { sm: 4 },
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={handlePrev}
+              startIcon={<ChevronLeft />}
+              sx={{
+                height: { xs: 35, sm: 40 },
+                minWidth: { xs: 0, sm: 110 },
+                flex: { xs: 1, sm: "none" },
+                textTransform: "none",
+                fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                px: { xs: 1, sm: 2 },
+              }}
+            >
+              <Box sx={{ display: { xs: "none", sm: "block" } }}>Anterior</Box>
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleNext}
+              endIcon={<ChevronRight />}
+              sx={{
+                height: { xs: 35, sm: 40 },
+                minWidth: { xs: 0, sm: 110 },
+                flex: { xs: 1, sm: "none" },
+                textTransform: "none",
+                fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                px: { xs: 1, sm: 2 },
+              }}
+            >
+              <Box sx={{ display: { xs: "none", sm: "block" } }}>Siguiente</Box>
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleToday}
+              startIcon={<Today />}
+              sx={{
+                height: { xs: 35, sm: 40 },
+                minWidth: { xs: 0, sm: 100 },
+                flex: { xs: 1, sm: "none" },
+                textTransform: "none",
+                fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                px: { xs: 1, sm: 2 },
+              }}
+            >
+              <Box sx={{ display: { xs: "none", sm: "block" } }}>Hoy</Box>
+            </Button>
+          </Stack>
         </Box>
 
-        <Box sx={{ p: 2, height: "calc(100% - 72px)" }}>
+        <Box sx={{ p: { xs: 1, sm: 2 }, height: "calc(100% - 75px)" }}>
           <FullCalendar
             ref={calendarRef}
             plugins={[
@@ -174,6 +197,18 @@ export const AppointmentCalendar = () => {
             }}
             dayHeaderFormat={{
               weekday: "short",
+            }}
+            views={{
+              timeGrid: {
+                dayHeaderFormat: {
+                  weekday: "short",
+                },
+              },
+              dayGrid: {
+                dayHeaderFormat: {
+                  weekday: "short",
+                },
+              },
             }}
             editable={true}
             selectable={true}
