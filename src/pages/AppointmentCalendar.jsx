@@ -158,6 +158,28 @@ export const AppointmentCalendar = () => {
             "& .fc-daygrid-block-event .fc-event-time": {
               fontSize: "0.85em",
             },
+            "& .fc-list": {
+              backgroundColor: "background.default",
+            },
+            "& .fc-list-day": {
+              backgroundColor: "background.default",
+            },
+            "& .fc-list-day-cushion": {
+              backgroundColor: "background.paper",
+            },
+            "& .fc-list-event": {
+              backgroundColor: "background.paper",
+              "&:hover td": {
+                backgroundColor: "action.hover",
+              },
+            },
+            "& .fc-list-day-text, & .fc-list-day-side-text": {
+              color: "text.primary",
+            },
+            "& .fc-list-empty": {
+              backgroundColor: "background.paper",
+              color: "text.secondary",
+            },
           }}
         >
           <FullCalendar
