@@ -5,23 +5,41 @@ import multiMonthPlugin from "@fullcalendar/multimonth";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
-import {
-  Box,
-  Paper,
-  FormControl,
-  Select,
-  MenuItem,
-  Button,
-  Typography,
-  Stack,
-} from "@mui/material";
-import { ChevronLeft, ChevronRight, Today } from "@mui/icons-material";
-import { useState, useRef } from "react";
+import { Box, Paper } from "@mui/material";
+import { useState, useRef, useEffect } from "react";
+import { CalendarHeader } from "../components/calendar/CalendarHeader";
+import { useAppointmentEvents } from "../components/calendar/AppointmentEvents";
 
 export const AppointmentCalendar = () => {
-  const [viewMode, setViewMode] = useState("multiMonthYear");
+  const [viewMode, setViewMode] = useState("dayGridMonth");
   const [title, setTitle] = useState("");
   const calendarRef = useRef(null);
+  const containerRef = useRef(null);
+
+  const {
+    events,
+    handleSelect,
+    handleEventClick,
+    handleEventChange,
+    renderEventContent,
+  } = useAppointmentEvents();
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.updateSize();
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   const handleViewChange = (event) => {
     setViewMode(event.target.value);
@@ -53,6 +71,7 @@ export const AppointmentCalendar = () => {
 
   return (
     <Box
+      ref={containerRef}
       sx={{
         width: "100%",
         height: "100%",
@@ -60,125 +79,27 @@ export const AppointmentCalendar = () => {
         flexDirection: "column",
       }}
     >
-      <Paper elevation={3} sx={{ height: "100%", overflow: "hidden" }}>
-        <Box
-          sx={{
-            p: { xs: 1, sm: 2 },
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: { xs: 1, sm: 0 },
-            alignItems: "center",
-            borderBottom: 1,
-            borderColor: "divider",
-            bgcolor: "background.default",
-          }}
-        >
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              order: { xs: 1, sm: 2 },
-              mb: { xs: 1, sm: 0 },
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                textTransform: "capitalize",
-                fontSize: {
-                  xs: "1rem",
-                  sm: "1.25rem",
-                },
-              }}
-            >
-              {title}
-            </Typography>
-
-            <FormControl size="small">
-              <Select
-                value={viewMode}
-                onChange={handleViewChange}
-                sx={{
-                  minWidth: { xs: 100, sm: 120 },
-                  height: { xs: 35, sm: 40 },
-                  "& .MuiSelect-select": {
-                    py: 1,
-                    fontSize: { xs: "0.875rem", sm: "0.95rem" },
-                  },
-                }}
-              >
-                <MenuItem value="multiMonthYear">Año</MenuItem>
-                <MenuItem value="dayGridMonth">Mes</MenuItem>
-                <MenuItem value="timeGridWeek">Semana</MenuItem>
-                <MenuItem value="timeGridDay">Día</MenuItem>
-                <MenuItem value="listWeek">Lista</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Stack
-            direction="row"
-            spacing={{ xs: 1, sm: 1.5 }}
-            sx={{
-              width: { xs: "100%", sm: "auto" },
-              order: { xs: 2, sm: 1 },
-              mr: { sm: 4 },
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={handlePrev}
-              startIcon={<ChevronLeft />}
-              sx={{
-                height: { xs: 35, sm: 40 },
-                minWidth: { xs: 0, sm: 110 },
-                flex: { xs: 1, sm: "none" },
-                textTransform: "none",
-                fontSize: { xs: "0.875rem", sm: "0.95rem" },
-                px: { xs: 1, sm: 2 },
-              }}
-            >
-              <Box sx={{ display: { xs: "none", sm: "block" } }}>Anterior</Box>
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={handleNext}
-              endIcon={<ChevronRight />}
-              sx={{
-                height: { xs: 35, sm: 40 },
-                minWidth: { xs: 0, sm: 110 },
-                flex: { xs: 1, sm: "none" },
-                textTransform: "none",
-                fontSize: { xs: "0.875rem", sm: "0.95rem" },
-                px: { xs: 1, sm: 2 },
-              }}
-            >
-              <Box sx={{ display: { xs: "none", sm: "block" } }}>Siguiente</Box>
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleToday}
-              startIcon={<Today />}
-              sx={{
-                height: { xs: 35, sm: 40 },
-                minWidth: { xs: 0, sm: 100 },
-                flex: { xs: 1, sm: "none" },
-                textTransform: "none",
-                fontSize: { xs: "0.875rem", sm: "0.95rem" },
-                px: { xs: 1, sm: 2 },
-              }}
-            >
-              <Box sx={{ display: { xs: "none", sm: "block" } }}>Hoy</Box>
-            </Button>
-          </Stack>
-        </Box>
+      <Paper elevation={3} sx={{ height: "100%", overflow: "auto" }}>
+        <CalendarHeader
+          title={title}
+          viewMode={viewMode}
+          onViewChange={handleViewChange}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          onToday={handleToday}
+        />
 
         <Box
           sx={{
-            p: { xs: 1, sm: 2 },
             height: "calc(100% - 75px)",
+            overflow: "hidden",
+            "& .fc": {
+              height: "100%",
+              width: "100%",
+            },
+            "& .fc-view-harness": {
+              height: "100% !important",
+            },
             "& .fc-multimonth-daygrid": {
               backgroundColor: "background.paper",
             },
@@ -199,7 +120,7 @@ export const AppointmentCalendar = () => {
               backgroundColor: "background.paper",
             },
             "& ::-webkit-scrollbar": {
-              width: "8px",
+              width: "6px",
               height: "8px",
             },
             "& ::-webkit-scrollbar-track": {
@@ -219,6 +140,23 @@ export const AppointmentCalendar = () => {
               "& ::-webkit-scrollbar-thumb:hover": {
                 background: "rgba(255, 255, 255, 0.3)",
               },
+            },
+            "& .fc-more-link": {
+              color: "primary.main",
+              textDecoration: "none",
+              fontSize: "0.85em",
+              fontWeight: "500",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            },
+            "& .fc-daygrid-event": {
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            },
+            "& .fc-daygrid-block-event .fc-event-time": {
+              fontSize: "0.85em",
             },
           }}
         >
@@ -255,6 +193,11 @@ export const AppointmentCalendar = () => {
                 dayHeaderFormat: {
                   weekday: "short",
                 },
+                dayMaxEventRows: 3,
+              },
+              dayGridMonth: {
+                eventDisplay: "block",
+                moreLinkClassNames: "fc-more-link",
               },
             }}
             editable={true}
@@ -263,10 +206,21 @@ export const AppointmentCalendar = () => {
             dayMaxEvents={true}
             businessHours={{
               daysOfWeek: [1, 2, 3, 4, 5, 6],
-              startTime: "09:00",
+              startTime: "08:00",
               endTime: "20:00",
             }}
             selectConstraint="businessHours"
+            handleWindowResize={true}
+            events={events}
+            select={handleSelect}
+            eventClick={handleEventClick}
+            eventChange={handleEventChange}
+            dayMaxEventRows={true}
+            moreLinkText={(nEvents) => `+${nEvents} más`}
+            moreLinkClick="popover"
+            eventDisplay="block"
+            eventMaxStack={3}
+            eventContent={renderEventContent}
           />
         </Box>
       </Paper>
