@@ -109,6 +109,7 @@ export const AppointmentCalendar = () => {
                   },
                 }}
               >
+                <MenuItem value="multiMonthYear">Año</MenuItem>
                 <MenuItem value="dayGridMonth">Mes</MenuItem>
                 <MenuItem value="timeGridWeek">Semana</MenuItem>
                 <MenuItem value="timeGridDay">Día</MenuItem>
@@ -174,7 +175,49 @@ export const AppointmentCalendar = () => {
           </Stack>
         </Box>
 
-        <Box sx={{ p: { xs: 1, sm: 2 }, height: "calc(100% - 75px)" }}>
+        <Box
+          sx={{
+            p: { xs: 1, sm: 2 },
+            height: "calc(100% - 75px)",
+            "& .fc-multimonth-daygrid": {
+              backgroundColor: "background.paper",
+            },
+            "& .fc-multimonth": {
+              backgroundColor: "background.default",
+            },
+            "& .fc-multimonth-title": {
+              color: "text.primary",
+            },
+            "& .fc-multimonth-daygrid-table": {
+              backgroundColor: "background.paper",
+            },
+            "& .fc-day": {
+              backgroundColor: "background.paper",
+            },
+            "& ::-webkit-scrollbar": {
+              width: "8px",
+              height: "8px",
+            },
+            "& ::-webkit-scrollbar-track": {
+              background: "transparent",
+            },
+            "& ::-webkit-scrollbar-thumb": {
+              background: "rgba(0, 0, 0, 0.2)",
+              borderRadius: "4px",
+            },
+            "& ::-webkit-scrollbar-thumb:hover": {
+              background: "rgba(0, 0, 0, 0.3)",
+            },
+            "@media (prefers-color-scheme: dark)": {
+              "& ::-webkit-scrollbar-thumb": {
+                background: "rgba(255, 255, 255, 0.2)",
+              },
+              "& ::-webkit-scrollbar-thumb:hover": {
+                background: "rgba(255, 255, 255, 0.3)",
+              },
+            },
+          }}
+        >
           <FullCalendar
             ref={calendarRef}
             plugins={[
