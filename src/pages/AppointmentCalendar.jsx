@@ -19,7 +19,7 @@ import { ChevronLeft, ChevronRight, Today } from "@mui/icons-material";
 import { useState, useRef } from "react";
 
 export const AppointmentCalendar = () => {
-  const [viewMode, setViewMode] = useState("dayGridMonth");
+  const [viewMode, setViewMode] = useState("multiMonthYear");
   const [title, setTitle] = useState("");
   const calendarRef = useRef(null);
 
@@ -187,6 +187,10 @@ export const AppointmentCalendar = () => {
             },
             "& .fc-multimonth-title": {
               color: "text.primary",
+              backgroundColor: "background.default",
+            },
+            "& .fc-multimonth-header": {
+              backgroundColor: "background.default",
             },
             "& .fc-multimonth-daygrid-table": {
               backgroundColor: "background.paper",
