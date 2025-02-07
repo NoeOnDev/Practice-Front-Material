@@ -37,40 +37,70 @@ const sampleEvents = [
 ];
 
 export const useAppointmentEvents = () => {
-  const appointmentColors = {
-    confirmed: "#4caf50",
-    pending: "#ff9800",
-    cancelled: "#f44336",
-  };
-
   const [events, setEvents] = useState(sampleEvents);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const handleSelect = (selectInfo) => {
-    const title = prompt("Por favor ingrese un título para la cita");
-    if (title) {
-      const newEvent = {
-        id: Date.now(),
-        title,
-        contactName: "Nuevo Contacto",
-        notes: "",
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        status: "pending",
-        backgroundColor: appointmentColors.pending,
-        borderColor: appointmentColors.pending,
-        display: "block",
-        textColor: "#fff",
-      };
-      setEvents([...events, newEvent]);
-    }
+    setSelectedAppointment({
+      title: "",
+      contact: null,
+      start: selectInfo.start,
+      end: selectInfo.end,
+      status: "pending",
+    });
+    setOpenModal(true);
     selectInfo.view.calendar.unselect();
   };
 
   const handleEventClick = (clickInfo) => {
-    if (confirm(`¿Desea eliminar la cita '${clickInfo.event.title}'?`)) {
-      clickInfo.event.remove();
-      setEvents(events.filter((event) => event.id !== clickInfo.event.id));
+    const event = events.find((e) => e.id === clickInfo.event.id);
+    setSelectedAppointment({
+      ...event,
+      start: clickInfo.event.start,
+      end: clickInfo.event.end,
+    });
+    setOpenModal(true);
+  };
+
+  const handleModalClose = () => {
+    setOpenModal(false);
+    setSelectedAppointment(null);
+  };
+
+  const handleModalSubmit = (event) => {
+    event.preventDefault();
+
+    const newEvent = {
+      id: selectedAppointment.id || Date.now(),
+      title: selectedAppointment.title,
+      contactName: selectedAppointment.contact
+        ? `${selectedAppointment.contact.first_name} ${selectedAppointment.contact.last_name}`
+        : "",
+      start: selectedAppointment.start,
+      end: selectedAppointment.end,
+      status: selectedAppointment.status,
+    };
+
+    if (selectedAppointment.id) {
+      setEvents(
+        events.map((event) =>
+          event.id === selectedAppointment.id ? newEvent : event
+        )
+      );
+    } else {
+      setEvents([...events, newEvent]);
     }
+
+    handleModalClose();
+  };
+
+  const handleModalChange = (event) => {
+    const { name, value } = event.target;
+    setSelectedAppointment((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleEventChange = (changeInfo) => {
@@ -133,9 +163,14 @@ export const useAppointmentEvents = () => {
 
   return {
     events,
+    openModal,
+    selectedAppointment,
     handleSelect,
     handleEventClick,
     handleEventChange,
+    handleModalClose,
+    handleModalSubmit,
+    handleModalChange,
     renderEventContent,
   };
 };

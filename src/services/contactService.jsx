@@ -73,3 +73,22 @@ export const deleteContact = async (id) => {
     throw error;
   }
 };
+
+export const searchContacts = async (query, page = 1, perPage = 10) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(
+      `${API_URL}/contacts/search?query=${query}&page=${page}&per_page=${perPage}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error searching contacts:", error);
+    throw error;
+  }
+};

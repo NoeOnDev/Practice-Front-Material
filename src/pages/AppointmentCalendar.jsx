@@ -9,6 +9,7 @@ import { Box, Paper } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import { CalendarHeader } from "../components/calendar/CalendarHeader";
 import { useAppointmentEvents } from "../components/calendar/AppointmentEvents";
+import { AppointmentFormModal } from "../components/calendar/AppointmentFormModal";
 
 export const AppointmentCalendar = () => {
   const [viewMode, setViewMode] = useState("dayGridMonth");
@@ -18,9 +19,14 @@ export const AppointmentCalendar = () => {
 
   const {
     events,
+    openModal,
+    selectedAppointment,
     handleSelect,
     handleEventClick,
     handleEventChange,
+    handleModalClose,
+    handleModalSubmit,
+    handleModalChange,
     renderEventContent,
   } = useAppointmentEvents();
 
@@ -246,6 +252,16 @@ export const AppointmentCalendar = () => {
           />
         </Box>
       </Paper>
+
+      <AppointmentFormModal
+        open={openModal}
+        appointment={selectedAppointment || {}}
+        contacts={[]}
+        onClose={handleModalClose}
+        onSubmit={handleModalSubmit}
+        onChange={handleModalChange}
+        title={selectedAppointment?.id ? "Editar Cita" : "Nueva Cita"}
+      />
     </Box>
   );
 };

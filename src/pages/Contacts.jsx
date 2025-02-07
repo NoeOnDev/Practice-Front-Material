@@ -50,12 +50,14 @@ export const Contacts = () => {
   useEffect(() => {
     const fetchContacts = async () => {
       try {
+        setLoading(true);
         const data = await getContacts();
-        setContactos(data);
+        setContactos(data || []);
         setError(null);
       } catch (err) {
         console.error("Error al cargar contactos:", err);
         setError("No se pudieron cargar los contactos");
+        setContactos([]);
       } finally {
         setLoading(false);
       }
@@ -220,6 +222,14 @@ export const Contacts = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ width: "100%", height: "100%", overflow: "auto" }}>
       {contactos.length > 0 && (
@@ -265,11 +275,7 @@ export const Contacts = () => {
         </Box>
       )}
 
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
-          <CircularProgress />
-        </Box>
-      ) : error ? (
+      {error ? (
         <Paper sx={{ p: 3, textAlign: "center" }}>
           <Typography color="error">{error}</Typography>
         </Paper>
