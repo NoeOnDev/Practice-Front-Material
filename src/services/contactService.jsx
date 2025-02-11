@@ -31,7 +31,7 @@ export const getContacts = async () => {
       },
     });
 
-    return response.data.contacts;
+    return response.data.data;
   } catch (error) {
     console.error("Error fetching contacts:", error);
     throw error;

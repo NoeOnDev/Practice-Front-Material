@@ -233,9 +233,9 @@ export const AppointmentCalendar = () => {
             selectMirror={true}
             dayMaxEvents={true}
             businessHours={{
-              daysOfWeek: [1, 2, 3, 4, 5, 6],
-              startTime: "08:00",
-              endTime: "20:00",
+              daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+              startTime: "",
+              endTime: "",
             }}
             selectConstraint="businessHours"
             handleWindowResize={true}

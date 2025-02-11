@@ -170,6 +170,18 @@ export const AppointmentFormModal = ({
                 </Select>
               </FormControl>
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Notas"
+                name="notes"
+                value={appointment.notes || ''}
+                onChange={onChange}
+                multiline
+                rows={3}
+                placeholder="Agrega notas o comentarios adicionales sobre la cita"
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>

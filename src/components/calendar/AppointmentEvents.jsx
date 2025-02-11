@@ -1,45 +1,32 @@
-import { useState } from "react";
-
-const sampleEvents = [
-  {
-    id: 1,
-    contactName: "Juan Pérez",
-    title: "Consulta Dental",
-    notes: "Primera visita del paciente",
-    start: "2025-02-05T10:00:00",
-    end: "2025-02-05T11:00:00",
-    status: "confirmed",
-    backgroundColor: "#4caf50",
-    borderColor: "#4caf50",
-  },
-  {
-    id: 2,
-    contactName: "María García",
-    title: "Limpieza Dental",
-    notes: "Limpieza dental semestral",
-    start: "2025-02-20T14:00:00",
-    end: "2025-02-20T15:00:00",
-    status: "pending",
-    backgroundColor: "#ff9800",
-    borderColor: "#ff9800",
-  },
-  {
-    id: 3,
-    contactName: "Carlos López",
-    title: "Extracción",
-    notes: "Cancelado por el paciente",
-    start: "2025-02-10T16:00:00",
-    end: "2025-02-10T17:00:00",
-    status: "cancelled",
-    backgroundColor: "#f44336",
-    borderColor: "#f44336",
-  },
-];
+import { useState, useEffect } from "react";
+import { 
+  createAppointment, 
+  getAppointments,
+  getAppointment,
+  updateAppointment
+} from "../../services/appointmentService";
 
 export const useAppointmentEvents = () => {
-  const [events, setEvents] = useState(sampleEvents);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const appointments = await getAppointments();
+        setEvents(appointments);
+      } catch (error) {
+        console.error("Error al cargar las citas:", error);
+        alert("Error al cargar las citas");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
 
   const handleSelect = (selectInfo) => {
     setSelectedAppointment({
@@ -53,14 +40,23 @@ export const useAppointmentEvents = () => {
     selectInfo.view.calendar.unselect();
   };
 
-  const handleEventClick = (clickInfo) => {
-    const event = events.find((e) => e.id === clickInfo.event.id);
-    setSelectedAppointment({
-      ...event,
-      start: clickInfo.event.start,
-      end: clickInfo.event.end,
-    });
-    setOpenModal(true);
+  const handleEventClick = async (clickInfo) => {
+    try {
+      // Obtener la información completa de la cita
+      const appointment = await getAppointment(clickInfo.event.id);
+      
+      // Actualizar el estado con la cita seleccionada
+      setSelectedAppointment({
+        ...appointment,
+        start: new Date(appointment.start),
+        end: new Date(appointment.end)
+      });
+      
+      setOpenModal(true);
+    } catch (error) {
+      console.error("Error al obtener la cita:", error);
+      alert("Error al obtener los detalles de la cita");
+    }
   };
 
   const handleModalClose = () => {
@@ -68,31 +64,26 @@ export const useAppointmentEvents = () => {
     setSelectedAppointment(null);
   };
 
-  const handleModalSubmit = (event) => {
+  const handleModalSubmit = async (event) => {
     event.preventDefault();
 
-    const newEvent = {
-      id: selectedAppointment.id || Date.now(),
-      title: selectedAppointment.title,
-      contactName: selectedAppointment.contact
-        ? `${selectedAppointment.contact.first_name} ${selectedAppointment.contact.last_name}`
-        : "",
-      start: selectedAppointment.start,
-      end: selectedAppointment.end,
-      status: selectedAppointment.status,
-    };
+    try {
+      if (selectedAppointment.id) {
+        // Si tiene ID, actualizar la cita existente
+        await updateAppointment(selectedAppointment.id, selectedAppointment);
+      } else {
+        // Si no tiene ID, crear nueva cita
+        await createAppointment(selectedAppointment);
+      }
 
-    if (selectedAppointment.id) {
-      setEvents(
-        events.map((event) =>
-          event.id === selectedAppointment.id ? newEvent : event
-        )
-      );
-    } else {
-      setEvents([...events, newEvent]);
+      // Recargar todas las citas para actualizar la vista
+      const updatedAppointments = await getAppointments();
+      setEvents(updatedAppointments);
+      handleModalClose();
+    } catch (error) {
+      console.error("Error al guardar la cita:", error);
+      alert("Error al guardar la cita. Por favor intente nuevamente.");
     }
-
-    handleModalClose();
   };
 
   const handleModalChange = (event) => {
