@@ -34,7 +34,6 @@ export const Practica = () => {
 
   return (
     <div>
-      <h1>HOla si entras aquí te gusta shiro</h1>
       <h2>Tu zona horaria: {userTimeZone}</h2>
       <h3>Citas en tu hora local:</h3>
       <ul>
