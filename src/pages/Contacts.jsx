@@ -46,13 +46,17 @@ export const Contacts = () => {
     fechaNacimiento: null,
     notes: "",
   });
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [totalRows, setTotalRows] = useState(0);
 
   useEffect(() => {
     const fetchContacts = async () => {
       try {
         setLoading(true);
-        const data = await getContacts();
-        setContactos(data || []);
+        const response = await getContacts(page, rowsPerPage);
+        setContactos(response.data);
+        setTotalRows(response.total);
         setError(null);
       } catch (err) {
         console.error("Error al cargar contactos:", err);
@@ -64,7 +68,16 @@ export const Contacts = () => {
     };
 
     fetchContacts();
-  }, []);
+  }, [page, rowsPerPage]);
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage + 1); // Convertir de base 0 a base 1
+  };
+
+  const handleRowsPerPageChange = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(1);
+  };
 
   const handleOpenModal = (contact) => {
     setSelectedContact(contact);
@@ -361,6 +374,11 @@ export const Contacts = () => {
           onRowClick={handleOpenModal}
           onEditClick={handleOpenEditModal}
           onDeleteClick={handleOpenDeleteDialog}
+          page={page}
+          totalRows={totalRows}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />
       )}
 
