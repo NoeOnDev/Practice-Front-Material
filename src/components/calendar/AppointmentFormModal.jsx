@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Typography,
   Box,
+  IconButton,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -63,7 +64,20 @@ export const AppointmentFormModal = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={onSubmit}>
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">{title}</Typography>
+          <Box>
+            {appointment.id && (
+              <IconButton
+                color="error"
+                onClick={onDelete}
+                size="small"
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </Box>
+        </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
@@ -187,25 +201,11 @@ export const AppointmentFormModal = ({
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: "space-between", px: 2 }}>
-          <Box>
-            {appointment.id && (
-              <Button
-                onClick={onDelete}
-                color="error"
-                variant="outlined"
-                startIcon={<DeleteIcon />}
-              >
-                Eliminar Cita
-              </Button>
-            )}
-          </Box>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button type="submit" variant="contained" color="primary">
-              Guardar
-            </Button>
-          </Box>
+        <DialogActions sx={{ display: 'flex', justifyContent: 'flex-end', px: 2 }}>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained" color="primary">
+            Guardar
+          </Button>
         </DialogActions>
       </form>
     </Dialog>

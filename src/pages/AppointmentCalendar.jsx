@@ -250,6 +250,9 @@ export const AppointmentCalendar = () => {
             eventDisplay="block"
             eventMaxStack={3}
             eventContent={renderEventContent}
+            eventOverlap={false}
+            selectOverlap={false}
+            slotEventOverlap={false}
           />
         </Box>
       </Paper>

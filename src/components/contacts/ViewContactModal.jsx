@@ -6,16 +6,44 @@ import {
   Button,
   Typography,
   Grid,
+  IconButton,
+  Box,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 import { formatDate } from "../../utils/dateUtils";
 
-export const ViewContactModal = ({ open, contact, onClose }) => {
+export const ViewContactModal = ({ open, contact, onClose, onEdit, onDelete }) => {
   if (!contact) return null;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Detalles del Contacto</DialogTitle>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6">Detalles del Contacto</Typography>
+        <Box>
+          <IconButton
+            color="primary"
+            onClick={() => {
+              onEdit(contact);
+              onClose();
+            }}
+            size="small"
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            color="error"
+            onClick={() => {
+              onDelete(contact);
+              onClose();
+            }}
+            size="small"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
@@ -61,4 +89,6 @@ ViewContactModal.propTypes = {
   open: PropTypes.bool.isRequired,
   contact: PropTypes.object,
   onClose: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };

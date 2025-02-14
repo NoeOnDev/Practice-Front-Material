@@ -39,7 +39,7 @@ export const Contacts = () => {
     last_name: "",
     middle_name: "",
     email: "",
-    phone_code: "",
+    phone_code: "+52",
     phone_number: "",
     estado: "",
     address: "",
@@ -93,7 +93,7 @@ export const Contacts = () => {
     setEditingContact({
       ...contact,
       fechaNacimiento: apiDateToDate(contact.birth_date),
-      estado: contact.state
+      estado: contact.state,
     });
     setOpenEdit(true);
   };
@@ -167,7 +167,7 @@ export const Contacts = () => {
       last_name: "",
       middle_name: "",
       email: "",
-      phone_code: "",
+      phone_code: "+52",
       phone_number: "",
       estado: "",
       address: "",
@@ -215,6 +215,25 @@ export const Contacts = () => {
     } catch (error) {
       console.error("Error al crear el contacto:", error);
       alert("Error al crear el contacto");
+    }
+  };
+
+  const handleMultipleDelete = async (selectedIds) => {
+    if (confirm(`¿Estás seguro de eliminar ${selectedIds.length} contactos?`)) {
+      try {
+        for (const id of selectedIds) {
+          await deleteContact(id);
+        }
+
+        const updatedContacts = await getContacts(page, rowsPerPage);
+        setContactos(updatedContacts.data);
+        setTotalRows(updatedContacts.total);
+
+        alert("Contactos eliminados exitosamente");
+      } catch (error) {
+        console.error("Error al eliminar contactos:", error);
+        alert("Error al eliminar los contactos");
+      }
     }
   };
 
@@ -366,6 +385,7 @@ export const Contacts = () => {
             onRowClick={handleOpenModal}
             onEditClick={handleOpenEditModal}
             onDeleteClick={handleOpenDeleteDialog}
+            onMultipleDelete={handleMultipleDelete}
             page={page}
             totalRows={totalRows}
             rowsPerPage={rowsPerPage}
@@ -379,6 +399,8 @@ export const Contacts = () => {
         open={open}
         contact={selectedContact}
         onClose={handleClose}
+        onEdit={handleOpenEditModal}
+        onDelete={handleOpenDeleteDialog}
       />
 
       <ContactFormModal
