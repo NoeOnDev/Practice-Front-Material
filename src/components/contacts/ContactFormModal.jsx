@@ -6,16 +6,15 @@ import {
   Button,
   Grid,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Autocomplete,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { es } from "date-fns/locale";
 import PropTypes from "prop-types";
+import { COUNTRY_CODES } from "./countryCodes";
+import { ESTADOS_MEXICO } from "./estadosMexico";
 
 export const ContactFormModal = ({
   open,
@@ -23,7 +22,7 @@ export const ContactFormModal = ({
   onClose,
   onSubmit,
   onChange,
-  title
+  title,
 }) => {
   if (!open) return null;
 
@@ -74,20 +73,42 @@ export const ContactFormModal = ({
               />
             </Grid>
             <Grid item xs={12} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Lada</InputLabel>
-                <Select
-                  label="Lada"
-                  name="phone_code"
-                  value={contact.phone_code}
-                  onChange={onChange}
-                  required
-                >
-                  <MenuItem value="+52">+52 (MX)</MenuItem>
-                  <MenuItem value="+1">+1 (USA)</MenuItem>
-                  <MenuItem value="+34">+34 (ESP)</MenuItem>
-                </Select>
-              </FormControl>
+              <Autocomplete
+                fullWidth
+                options={COUNTRY_CODES}
+                getOptionLabel={(option) =>
+                  typeof option === "string"
+                    ? option
+                    : `${option.code} - ${option.label}`
+                }
+                value={
+                  COUNTRY_CODES.find((c) => c.code === contact.phone_code) ||
+                  null
+                }
+                onChange={(event, newValue) => {
+                  onChange({
+                    target: {
+                      name: "phone_code",
+                      value: newValue ? newValue.code : "+52",
+                    },
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Código de País"
+                    required
+                    fullWidth
+                    inputProps={{
+                      ...params.inputProps,
+                      value: contact.phone_code || "",
+                    }}
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props}>{option.label}</li>
+                )}
+              />
             </Grid>
             <Grid item xs={12} md={4}>
               <TextField
@@ -100,20 +121,22 @@ export const ContactFormModal = ({
               />
             </Grid>
             <Grid item xs={12} md={5}>
-              <FormControl fullWidth>
-                <InputLabel>Estado</InputLabel>
-                <Select
-                  label="Estado"
-                  name="estado"
-                  value={contact.estado}
-                  onChange={onChange}
-                  required
-                >
-                  <MenuItem value="CDMX">Ciudad de México</MenuItem>
-                  <MenuItem value="JAL">Jalisco</MenuItem>
-                  <MenuItem value="NL">Nuevo León</MenuItem>
-                </Select>
-              </FormControl>
+              <Autocomplete
+                fullWidth
+                options={ESTADOS_MEXICO}
+                value={contact.estado}
+                onChange={(event, newValue) => {
+                  onChange({
+                    target: {
+                      name: "estado",
+                      value: newValue,
+                    },
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Estado" required fullWidth />
+                )}
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField

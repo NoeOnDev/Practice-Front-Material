@@ -39,9 +39,9 @@ export const Contacts = () => {
     last_name: "",
     middle_name: "",
     email: "",
-    phone_code: "+52",
+    phone_code: "",
     phone_number: "",
-    estado: "CDMX",
+    estado: "",
     address: "",
     fechaNacimiento: null,
     notes: "",
@@ -71,7 +71,7 @@ export const Contacts = () => {
   }, [page, rowsPerPage]);
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage + 1); // Convertir de base 0 a base 1
+    setPage(newPage + 1);
   };
 
   const handleRowsPerPageChange = (event) => {
@@ -93,12 +93,7 @@ export const Contacts = () => {
     setEditingContact({
       ...contact,
       fechaNacimiento: apiDateToDate(contact.birth_date),
-      estado:
-        contact.state === "Mexico City"
-          ? "CDMX"
-          : contact.state === "Jalisco"
-            ? "JAL"
-            : "NL",
+      estado: contact.state
     });
     setOpenEdit(true);
   };
@@ -121,21 +116,9 @@ export const Contacts = () => {
 
     try {
       const updatedData = {
-        first_name: editingContact.first_name,
-        last_name: editingContact.last_name,
-        middle_name: editingContact.middle_name,
-        email: editingContact.email,
-        phone_code: editingContact.phone_code,
-        phone_number: editingContact.phone_number,
-        state:
-          editingContact.estado === "CDMX"
-            ? "Mexico City"
-            : editingContact.estado === "JAL"
-              ? "Jalisco"
-              : "Nuevo Leon",
-        address: editingContact.address,
+        ...editingContact,
         birth_date: dateToApiDate(editingContact.fechaNacimiento),
-        notes: editingContact.notes,
+        state: editingContact.estado,
       };
 
       await updateContact(editingContact.id, updatedData);
@@ -163,9 +146,8 @@ export const Contacts = () => {
 
   const handleDeleteContact = async () => {
     try {
-      await deleteContact(deletingContact.id);
-      const updatedContacts = await getContacts();
-      setContactos(updatedContacts);
+      const response = await deleteContact(deletingContact.id);
+      setContactos(response.contacts);
       alert("Contacto eliminado exitosamente");
       handleCloseDeleteDialog();
     } catch (error) {
@@ -185,9 +167,9 @@ export const Contacts = () => {
       last_name: "",
       middle_name: "",
       email: "",
-      phone_code: "+52",
+      phone_code: "",
       phone_number: "",
-      estado: "CDMX",
+      estado: "",
       address: "",
       fechaNacimiento: null,
       notes: "",
@@ -225,8 +207,9 @@ export const Contacts = () => {
       };
 
       await createContact(transformedData);
-      const updatedContacts = await getContacts();
-      setContactos(updatedContacts);
+      const updatedContacts = await getContacts(page, rowsPerPage);
+      setContactos(updatedContacts.data);
+      setTotalRows(updatedContacts.total);
       alert("Contacto creado exitosamente");
       handleCloseCreate();
     } catch (error) {
@@ -331,7 +314,7 @@ export const Contacts = () => {
                 }}
               />
             </Box>
-            <Box>
+            <Box sx={{ textAlign: "center" }}>
               <Typography
                 variant="h5"
                 color="text.secondary"
