@@ -27,6 +27,7 @@ export const AppointmentCalendar = () => {
     handleModalClose,
     handleModalSubmit,
     handleModalChange,
+    handleDeleteAppointment,
     renderEventContent,
   } = useAppointmentEvents();
 
@@ -260,6 +261,7 @@ export const AppointmentCalendar = () => {
         onClose={handleModalClose}
         onSubmit={handleModalSubmit}
         onChange={handleModalChange}
+        onDelete={handleDeleteAppointment}
         title={selectedAppointment?.id ? "Editar Cita" : "Nueva Cita"}
       />
     </Box>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { 
-  createAppointment, 
+import {
+  createAppointment,
   getAppointments,
   getAppointment,
-  updateAppointment
+  updateAppointment,
+  deleteAppointment,
 } from "../../services/appointmentService";
 
 export const useAppointmentEvents = () => {
@@ -44,14 +45,14 @@ export const useAppointmentEvents = () => {
     try {
       // Obtener la información completa de la cita
       const appointment = await getAppointment(clickInfo.event.id);
-      
+
       // Actualizar el estado con la cita seleccionada
       setSelectedAppointment({
         ...appointment,
         start: new Date(appointment.start),
-        end: new Date(appointment.end)
+        end: new Date(appointment.end),
       });
-      
+
       setOpenModal(true);
     } catch (error) {
       console.error("Error al obtener la cita:", error);
@@ -108,6 +109,22 @@ export const useAppointmentEvents = () => {
     );
   };
 
+  const handleDeleteAppointment = async () => {
+    if (!selectedAppointment?.id) return;
+
+    if (confirm("¿Estás seguro de eliminar esta cita?")) {
+      try {
+        await deleteAppointment(selectedAppointment.id);
+        const updatedAppointments = await getAppointments();
+        setEvents(updatedAppointments);
+        handleModalClose();
+      } catch (error) {
+        console.error("Error al eliminar la cita:", error);
+        alert("Error al eliminar la cita. Por favor intente nuevamente.");
+      }
+    }
+  };
+
   const renderEventContent = (eventInfo) => {
     if (
       eventInfo.view.type.includes("dayGrid") ||
@@ -162,6 +179,7 @@ export const useAppointmentEvents = () => {
     handleModalClose,
     handleModalSubmit,
     handleModalChange,
+    handleDeleteAppointment,
     renderEventContent,
   };
 };

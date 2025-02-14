@@ -244,14 +244,21 @@ export const Contacts = () => {
   }
 
   return (
-    <Box sx={{ width: "100%", height: "100%", overflow: "auto" }}>
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+      }}
+    >
       {contactos.length > 0 && (
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            mb: 3,
             flexDirection: { xs: "column", sm: "row" },
             gap: { xs: 2, sm: 0 },
           }}
@@ -288,99 +295,102 @@ export const Contacts = () => {
         </Box>
       )}
 
-      {error ? (
-        <Paper sx={{ p: 3, textAlign: "center" }}>
-          <Typography color="error">{error}</Typography>
-        </Paper>
-      ) : contactos.length === 0 ? (
-        <Paper
-          sx={{
-            p: 4,
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 3,
-            backgroundColor: "background.default",
-          }}
-        >
-          <Box
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        {error ? (
+          <Paper sx={{ p: 3, textAlign: "center", height: "100%" }}>
+            <Typography color="error">{error}</Typography>
+          </Paper>
+        ) : contactos.length === 0 ? (
+          <Paper
             sx={{
-              width: "100%",
-              maxWidth: 200,
-              height: 200,
+              p: 4,
+              height: "100%",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
+              gap: 3,
+              backgroundColor: "background.default",
             }}
           >
-            <ContactMailIcon
+            <Box
               sx={{
-                fontSize: 120,
-                color: "text.secondary",
-                opacity: 0.7,
-              }}
-            />
-          </Box>
-          <Box>
-            <Typography
-              variant="h5"
-              color="text.secondary"
-              gutterBottom
-              sx={{
-                fontSize: {
-                  xs: "1.25rem",
-                  sm: "1.5rem",
-                },
+                width: "100%",
+                maxWidth: 200,
+                height: 200,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              No tienes contactos guardados
-            </Typography>
-            <Typography
-              color="text.secondary"
-              sx={{
-                fontSize: {
-                  xs: "0.875rem",
-                  sm: "1rem",
-                },
-                maxWidth: 500,
-                mx: "auto",
-                mb: 3,
-              }}
-            >
-              Agrega tu primer contacto haciendo clic en el botón
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleOpenCreateModal}
-              startIcon={<AddIcon />}
-              sx={{
-                fontSize: {
-                  xs: "0.875rem",
-                  sm: "0.9rem",
-                },
-                py: { xs: 1 },
-                px: { xs: 3 },
-              }}
-            >
-              Agregar Primer Contacto
-            </Button>
-          </Box>
-        </Paper>
-      ) : (
-        <ContactsTable
-          contacts={contactos}
-          onRowClick={handleOpenModal}
-          onEditClick={handleOpenEditModal}
-          onDeleteClick={handleOpenDeleteDialog}
-          page={page}
-          totalRows={totalRows}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
-      )}
+              <ContactMailIcon
+                sx={{
+                  fontSize: 120,
+                  color: "text.secondary",
+                  opacity: 0.7,
+                }}
+              />
+            </Box>
+            <Box>
+              <Typography
+                variant="h5"
+                color="text.secondary"
+                gutterBottom
+                sx={{
+                  fontSize: {
+                    xs: "1.25rem",
+                    sm: "1.5rem",
+                  },
+                }}
+              >
+                No tienes contactos guardados
+              </Typography>
+              <Typography
+                color="text.secondary"
+                sx={{
+                  fontSize: {
+                    xs: "0.875rem",
+                    sm: "1rem",
+                  },
+                  maxWidth: 500,
+                  mx: "auto",
+                  mb: 3,
+                }}
+              >
+                Agrega tu primer contacto haciendo clic en el botón
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleOpenCreateModal}
+                startIcon={<AddIcon />}
+                sx={{
+                  fontSize: {
+                    xs: "0.875rem",
+                    sm: "0.9rem",
+                  },
+                  py: { xs: 1 },
+                  px: { xs: 3 },
+                }}
+              >
+                Agregar Primer Contacto
+              </Button>
+            </Box>
+          </Paper>
+        ) : (
+          <ContactsTable
+            contacts={contactos}
+            onRowClick={handleOpenModal}
+            onEditClick={handleOpenEditModal}
+            onDeleteClick={handleOpenDeleteDialog}
+            page={page}
+            totalRows={totalRows}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+          />
+        )}
+      </Box>
 
       <ViewContactModal
         open={open}

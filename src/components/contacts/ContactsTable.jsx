@@ -26,136 +26,148 @@ export const ContactsTable = ({
   onRowsPerPageChange,
 }) => {
   return (
-    <TableContainer
-      component={Paper}
-      sx={{
-        width: "100%",
-        overflow: "auto",
-        "& .MuiTable-root": {
-          minWidth: 1200,
-        },
-      }}
-    >
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Nombre Completo</TableCell>
-            <TableCell>Correo Electrónico</TableCell>
-            <TableCell>Teléfono</TableCell>
-            <TableCell>Estado</TableCell>
-            <TableCell>Dirección</TableCell>
-            <TableCell>Fecha de Nacimiento</TableCell>
-            <TableCell>Notas</TableCell>
-            <TableCell align="center">Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {contacts.map((contact) => (
-            <TableRow key={contact.id}>
-              <TableCell
-                onClick={() => onRowClick(contact)}
-                sx={{
-                  cursor: "pointer",
-                  maxWidth: 200,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {`${contact.first_name} ${contact.last_name} ${contact.middle_name}`}
-              </TableCell>
-              <TableCell
-                onClick={() => onRowClick(contact)}
-                sx={{
-                  cursor: "pointer",
-                  maxWidth: 150,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {contact.email}
-              </TableCell>
-              <TableCell
-                onClick={() => onRowClick(contact)}
-                sx={{ cursor: "pointer" }}
-              >
-                {`${contact.phone_code} ${contact.phone_number}`}
-              </TableCell>
-              <TableCell
-                onClick={() => onRowClick(contact)}
-                sx={{ cursor: "pointer" }}
-              >
-                {contact.state}
-              </TableCell>
-              <TableCell
-                onClick={() => onRowClick(contact)}
-                sx={{
-                  cursor: "pointer",
-                  maxWidth: 150,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {contact.address}
-              </TableCell>
-              <TableCell
-                onClick={() => onRowClick(contact)}
-                sx={{ cursor: "pointer" }}
-              >
-                {formatDate(contact.birth_date)}
-              </TableCell>
-              <TableCell
-                onClick={() => onRowClick(contact)}
-                sx={{
-                  cursor: "pointer",
-                  maxWidth: 150,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {contact.notes}
-              </TableCell>
-              <TableCell align="center">
-                <IconButton
-                  color="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditClick(contact);
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  color="error"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteClick(contact);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
+    <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <TableContainer
+        sx={{
+          flex: 1,
+          overflowY: "auto",
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "background.default",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "grey.400",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "grey.500",
+          },
+        }}
+      >
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell>Nombre Completo</TableCell>
+              <TableCell>Correo Electrónico</TableCell>
+              <TableCell>Teléfono</TableCell>
+              <TableCell>Estado</TableCell>
+              <TableCell>Dirección</TableCell>
+              <TableCell>Fecha de Nacimiento</TableCell>
+              <TableCell>Notas</TableCell>
+              <TableCell align="center">Acciones</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {contacts.map((contact) => (
+              <TableRow key={contact.id}>
+                <TableCell
+                  onClick={() => onRowClick(contact)}
+                  sx={{
+                    cursor: "pointer",
+                    maxWidth: 200,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {`${contact.first_name} ${contact.last_name} ${contact.middle_name}`}
+                </TableCell>
+                <TableCell
+                  onClick={() => onRowClick(contact)}
+                  sx={{
+                    cursor: "pointer",
+                    maxWidth: 150,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {contact.email}
+                </TableCell>
+                <TableCell
+                  onClick={() => onRowClick(contact)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  {`${contact.phone_code} ${contact.phone_number}`}
+                </TableCell>
+                <TableCell
+                  onClick={() => onRowClick(contact)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  {contact.state}
+                </TableCell>
+                <TableCell
+                  onClick={() => onRowClick(contact)}
+                  sx={{
+                    cursor: "pointer",
+                    maxWidth: 150,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {contact.address}
+                </TableCell>
+                <TableCell
+                  onClick={() => onRowClick(contact)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  {formatDate(contact.birth_date)}
+                </TableCell>
+                <TableCell
+                  onClick={() => onRowClick(contact)}
+                  sx={{
+                    cursor: "pointer",
+                    maxWidth: 150,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {contact.notes}
+                </TableCell>
+                <TableCell align="center">
+                  <IconButton
+                    color="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditClick(contact);
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteClick(contact);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
       <TablePagination
         component="div"
         count={totalRows}
-        page={page - 1} // TablePagination usa base 0
+        page={page - 1}
         onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={onRowsPerPageChange}
         labelRowsPerPage="Filas por página:"
-        labelDisplayedRows={({ from, to, count }) => 
+        labelDisplayedRows={({ from, to, count }) =>
           `${from}-${to} de ${count}`
         }
         rowsPerPageOptions={[5, 10, 15, 25, 50]}
       />
-    </TableContainer>
+    </Paper>
   );
 };
 

@@ -13,6 +13,7 @@ import {
   MenuItem,
   CircularProgress,
   Typography,
+  Box,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -22,6 +23,7 @@ import { es } from "date-fns/locale";
 import { useState } from "react";
 import { searchContacts } from "../../services/contactService";
 import { useDebounce } from "../../hooks/useDebounce";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export const AppointmentFormModal = ({
   open,
@@ -29,6 +31,7 @@ export const AppointmentFormModal = ({
   onClose,
   onSubmit,
   onChange,
+  onDelete,
   title,
 }) => {
   const [searchResults, setSearchResults] = useState([]);
@@ -175,7 +178,7 @@ export const AppointmentFormModal = ({
                 fullWidth
                 label="Notas"
                 name="notes"
-                value={appointment.notes || ''}
+                value={appointment.notes || ""}
                 onChange={onChange}
                 multiline
                 rows={3}
@@ -184,11 +187,25 @@ export const AppointmentFormModal = ({
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained" color="primary">
-            Guardar
-          </Button>
+        <DialogActions sx={{ justifyContent: "space-between", px: 2 }}>
+          <Box>
+            {appointment.id && (
+              <Button
+                onClick={onDelete}
+                color="error"
+                variant="outlined"
+                startIcon={<DeleteIcon />}
+              >
+                Eliminar Cita
+              </Button>
+            )}
+          </Box>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button onClick={onClose}>Cancelar</Button>
+            <Button type="submit" variant="contained" color="primary">
+              Guardar
+            </Button>
+          </Box>
         </DialogActions>
       </form>
     </Dialog>
@@ -198,9 +215,9 @@ export const AppointmentFormModal = ({
 AppointmentFormModal.propTypes = {
   open: PropTypes.bool.isRequired,
   appointment: PropTypes.object,
-  contacts: PropTypes.array.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
   title: PropTypes.string.isRequired,
 };
