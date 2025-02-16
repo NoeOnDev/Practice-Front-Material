@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Paper,
@@ -22,6 +22,8 @@ import { ContactFormModal } from "../components/contacts/ContactFormModal";
 import AddIcon from "@mui/icons-material/Add";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import { apiDateToDate, dateToApiDate } from "../utils/dateUtils";
+import { useDebounce } from "../hooks/useDebounce";
+import { searchContacts } from "../services/contactService";
 
 export const Contacts = () => {
   const [open, setOpen] = useState(false);
@@ -49,26 +51,60 @@ export const Contacts = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+
+  const handleSearch = useDebounce(
+    useCallback(
+      async (query) => {
+        if (!query.trim()) {
+          const response = await getContacts(page, rowsPerPage);
+          setContactos(response.data);
+          setTotalRows(response.total);
+          setSearching(false);
+          return;
+        }
+
+        try {
+          setSearching(true);
+          const response = await searchContacts(query, page, rowsPerPage);
+          setContactos(response.data);
+          setTotalRows(response.total);
+        } catch (error) {
+          console.error("Error al buscar contactos:", error);
+          setError("Error al buscar contactos");
+        } finally {
+          setSearching(false);
+        }
+      },
+      [page, rowsPerPage]
+    ),
+    300
+  );
 
   useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        setLoading(true);
-        const response = await getContacts(page, rowsPerPage);
-        setContactos(response.data);
-        setTotalRows(response.total);
-        setError(null);
-      } catch (err) {
-        console.error("Error al cargar contactos:", err);
-        setError("No se pudieron cargar los contactos");
-        setContactos([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!searchQuery.trim()) {
+      const fetchContacts = async () => {
+        try {
+          setLoading(true);
+          const response = await getContacts(page, rowsPerPage);
+          setContactos(response.data);
+          setTotalRows(response.total);
+          setError(null);
+        } catch (err) {
+          console.error("Error al cargar contactos:", err);
+          setError("No se pudieron cargar los contactos");
+          setContactos([]);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchContacts();
-  }, [page, rowsPerPage]);
+      fetchContacts();
+    } else {
+      handleSearch(searchQuery);
+    }
+  }, [page, rowsPerPage, searchQuery, handleSearch]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -302,7 +338,7 @@ export const Contacts = () => {
           <Paper sx={{ p: 3, textAlign: "center", height: "100%" }}>
             <Typography color="error">{error}</Typography>
           </Paper>
-        ) : contactos.length === 0 ? (
+        ) : contactos.length === 0 && !searchQuery ? (
           <Paper
             sx={{
               p: 4,
@@ -391,6 +427,8 @@ export const Contacts = () => {
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
+            searchQuery={searchQuery}
+            onSearchChange={(value) => setSearchQuery(value)}
           />
         )}
       </Box>
