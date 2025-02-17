@@ -286,57 +286,47 @@ export const Contacts = () => {
         gap: 2,
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexDirection: { xs: "column", sm: "row" },
-          gap: { xs: 2, sm: 2 },
-        }}
-      >
-        <Button
-          variant="contained"
-          color="error"
-          disabled={selected.length === 0}
-          startIcon={<DeleteIcon />}
-          onClick={() => {
-            onMultipleDelete(selected);
-            setSelected([]);
-          }}
+      {contactos.length > 0 && (
+        <Box
           sx={{
-            visibility: contactos.length > 0 ? "visible" : "hidden",
-            fontSize: {
-              xs: "0.875rem",
-              sm: "0.9rem",
-            },
-            py: { xs: 1 },
-            px: { xs: 2 },
-            minWidth: { xs: "100%", sm: "auto" },
-            whiteSpace: "nowrap"
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: { xs: 2, sm: 0 },
           }}
         >
-          {selected?.length > 0 ? `Eliminar (${selected.length})` : "Eliminar"}
-        </Button>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleOpenCreateModal}
-          startIcon={<AddIcon />}
-          sx={{
-            fontSize: {
-              xs: "0.875rem",
-              sm: "0.9rem",
-            },
-            py: { xs: 1 },
-            px: { xs: 2 },
-            minWidth: { xs: "100%", sm: "auto" },
-          }}
-        >
-          Nuevo Contacto
-        </Button>
-      </Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontSize: {
+                xs: "1.5rem",
+                sm: "2rem",
+                md: "2.125rem",
+              },
+            }}
+          >
+            Mis Contactos
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenCreateModal}
+            startIcon={<AddIcon />}
+            sx={{
+              fontSize: {
+                xs: "0.875rem",
+                sm: "0.9rem",
+              },
+              py: { xs: 1 },
+              px: { xs: 2 },
+              width: { xs: "100%", sm: "auto" },
+            }}
+          >
+            Nuevo Contacto
+          </Button>
+        </Box>
+      )}
 
       <Box sx={{ flex: 1, minHeight: 0 }}>
         {error ? (

@@ -64,17 +64,7 @@ export const ContactsTable = ({
 
   return (
     <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box 
-        sx={{ 
-          p: 2, 
-          borderBottom: 1, 
-          borderColor: "divider",
-          display: "flex",
-          gap: 2,
-          alignItems: "center",
-          flexDirection: { xs: "column", sm: "row" } 
-        }}
-      >
+      <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
         <TextField
           fullWidth
           placeholder="Buscar contactos..."
@@ -93,23 +83,21 @@ export const ContactsTable = ({
               },
             },
           }}
+          sx={{ mb: selected.length > 0 ? 2 : 0 }}
         />
-        <Button
-          variant="contained"
-          color="error"
-          startIcon={<DeleteIcon />}
-          onClick={() => {
-            onMultipleDelete(selected);
-            setSelected([]);
-          }}
-          disabled={selected.length === 0}
-          sx={{
-            minWidth: { xs: "100%", sm: "auto" },
-            whiteSpace: "nowrap"
-          }}
-        >
-          {selected.length > 0 ? `Eliminar (${selected.length})` : "Eliminar"}
-        </Button>
+        {selected.length > 0 && (
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<DeleteIcon />}
+            onClick={() => {
+              onMultipleDelete(selected);
+              setSelected([]);
+            }}
+          >
+            Eliminar ({selected.length}) contactos
+          </Button>
+        )}
       </Box>
 
       {contacts.length === 0 && searchQuery ? (
