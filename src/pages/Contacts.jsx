@@ -231,12 +231,7 @@ export const Contacts = () => {
         email: newContact.email,
         phone_code: newContact.phone_code,
         phone_number: newContact.phone_number,
-        state:
-          newContact.estado === "CDMX"
-            ? "Mexico City"
-            : newContact.estado === "JAL"
-              ? "Jalisco"
-              : "Nuevo Leon",
+        state: newContact.estado,
         address: newContact.address,
         birth_date: newContact.fechaNacimiento?.toISOString().split("T")[0],
         notes: newContact.notes,
@@ -291,47 +286,57 @@ export const Contacts = () => {
         gap: 2,
       }}
     >
-      {contactos.length > 0 && (
-        <Box
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 2, sm: 2 },
+        }}
+      >
+        <Button
+          variant="contained"
+          color="error"
+          disabled={selected.length === 0}
+          startIcon={<DeleteIcon />}
+          onClick={() => {
+            onMultipleDelete(selected);
+            setSelected([]);
+          }}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: { xs: 2, sm: 0 },
+            visibility: contactos.length > 0 ? "visible" : "hidden",
+            fontSize: {
+              xs: "0.875rem",
+              sm: "0.9rem",
+            },
+            py: { xs: 1 },
+            px: { xs: 2 },
+            minWidth: { xs: "100%", sm: "auto" },
+            whiteSpace: "nowrap"
           }}
         >
-          <Typography
-            variant="h4"
-            sx={{
-              fontSize: {
-                xs: "1.5rem",
-                sm: "2rem",
-                md: "2.125rem",
-              },
-            }}
-          >
-            Mis Contactos
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenCreateModal}
-            startIcon={<AddIcon />}
-            sx={{
-              fontSize: {
-                xs: "0.875rem",
-                sm: "0.9rem",
-              },
-              py: { xs: 1 },
-              px: { xs: 2 },
-              width: { xs: "100%", sm: "auto" },
-            }}
-          >
-            Nuevo Contacto
-          </Button>
-        </Box>
-      )}
+          {selected?.length > 0 ? `Eliminar (${selected.length})` : "Eliminar"}
+        </Button>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenCreateModal}
+          startIcon={<AddIcon />}
+          sx={{
+            fontSize: {
+              xs: "0.875rem",
+              sm: "0.9rem",
+            },
+            py: { xs: 1 },
+            px: { xs: 2 },
+            minWidth: { xs: "100%", sm: "auto" },
+          }}
+        >
+          Nuevo Contacto
+        </Button>
+      </Box>
 
       <Box sx={{ flex: 1, minHeight: 0 }}>
         {error ? (

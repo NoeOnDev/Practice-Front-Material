@@ -64,7 +64,17 @@ export const ContactsTable = ({
 
   return (
     <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+      <Box 
+        sx={{ 
+          p: 2, 
+          borderBottom: 1, 
+          borderColor: "divider",
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+          flexDirection: { xs: "column", sm: "row" } 
+        }}
+      >
         <TextField
           fullWidth
           placeholder="Buscar contactos..."
@@ -83,21 +93,23 @@ export const ContactsTable = ({
               },
             },
           }}
-          sx={{ mb: selected.length > 0 ? 2 : 0 }}
         />
-        {selected.length > 0 && (
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<DeleteIcon />}
-            onClick={() => {
-              onMultipleDelete(selected);
-              setSelected([]);
-            }}
-          >
-            Eliminar ({selected.length}) contactos
-          </Button>
-        )}
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<DeleteIcon />}
+          onClick={() => {
+            onMultipleDelete(selected);
+            setSelected([]);
+          }}
+          disabled={selected.length === 0}
+          sx={{
+            minWidth: { xs: "100%", sm: "auto" },
+            whiteSpace: "nowrap"
+          }}
+        >
+          {selected.length > 0 ? `Eliminar (${selected.length})` : "Eliminar"}
+        </Button>
       </Box>
 
       {contacts.length === 0 && searchQuery ? (
@@ -114,7 +126,7 @@ export const ContactsTable = ({
         >
           <SearchOffIcon sx={{ fontSize: 60, color: "text.secondary" }} />
           <Typography color="text.secondary" variant="h6" align="center">
-            No se encontraron contactos con el término "{searchQuery}"
+            No se encontraron contactos con el término &quot;{searchQuery}&quot;
           </Typography>
           <Typography color="text.secondary" variant="body2">
             Prueba con otros términos de búsqueda
