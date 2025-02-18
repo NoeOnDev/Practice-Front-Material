@@ -9,7 +9,6 @@ import {
   Paper,
   TablePagination,
   Checkbox,
-  Button,
   Box,
   TextField,
   InputAdornment,
@@ -21,14 +20,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import PropTypes from "prop-types";
 import { formatDate } from "../../utils/dateUtils";
-import { useState } from "react";
 
 export const ContactsTable = ({
   contacts,
   onRowClick,
   onEditClick,
   onDeleteClick,
-  onMultipleDelete,
   page,
   totalRows,
   rowsPerPage,
@@ -36,9 +33,9 @@ export const ContactsTable = ({
   onRowsPerPageChange,
   searchQuery,
   onSearchChange,
+  selected,
+  setSelected,
 }) => {
-  const [selected, setSelected] = useState([]);
-
   const handleSelectAll = (event) => {
     if (event.target.checked) {
       setSelected(contacts.map((contact) => contact.id));
@@ -83,21 +80,7 @@ export const ContactsTable = ({
               },
             },
           }}
-          sx={{ mb: selected.length > 0 ? 2 : 0 }}
         />
-        {selected.length > 0 && (
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<DeleteIcon />}
-            onClick={() => {
-              onMultipleDelete(selected);
-              setSelected([]);
-            }}
-          >
-            Eliminar ({selected.length}) contactos
-          </Button>
-        )}
       </Box>
 
       {contacts.length === 0 && searchQuery ? (
@@ -304,4 +287,6 @@ ContactsTable.propTypes = {
   onRowsPerPageChange: PropTypes.func.isRequired,
   searchQuery: PropTypes.string.isRequired,
   onSearchChange: PropTypes.func.isRequired,
+  selected: PropTypes.array.isRequired,
+  setSelected: PropTypes.func.isRequired,
 };

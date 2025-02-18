@@ -24,6 +24,7 @@ import ContactMailIcon from "@mui/icons-material/ContactMail";
 import { apiDateToDate, dateToApiDate } from "../utils/dateUtils";
 import { useDebounce } from "../hooks/useDebounce";
 import { searchContacts } from "../services/contactService";
+import { ContactsHeader } from "../components/contacts/ContactsHeader";
 
 export const Contacts = () => {
   const [open, setOpen] = useState(false);
@@ -53,6 +54,7 @@ export const Contacts = () => {
   const [totalRows, setTotalRows] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
+  const [selected, setSelected] = useState([]);
 
   const handleSearch = useDebounce(
     useCallback(
@@ -287,45 +289,12 @@ export const Contacts = () => {
       }}
     >
       {contactos.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: { xs: 2, sm: 0 },
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{
-              fontSize: {
-                xs: "1.5rem",
-                sm: "2rem",
-                md: "2.125rem",
-              },
-            }}
-          >
-            Mis Contactos
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenCreateModal}
-            startIcon={<AddIcon />}
-            sx={{
-              fontSize: {
-                xs: "0.875rem",
-                sm: "0.9rem",
-              },
-              py: { xs: 1 },
-              px: { xs: 2 },
-              width: { xs: "100%", sm: "auto" },
-            }}
-          >
-            Nuevo Contacto
-          </Button>
-        </Box>
+        <ContactsHeader
+          selectedCount={selected.length}
+          onMultipleDelete={() => handleMultipleDelete(selected)}
+          onCreateNew={handleOpenCreateModal}
+          setSelected={setSelected}
+        />
       )}
 
       <Box sx={{ flex: 1, minHeight: 0 }}>
@@ -424,6 +393,8 @@ export const Contacts = () => {
             onRowsPerPageChange={handleRowsPerPageChange}
             searchQuery={searchQuery}
             onSearchChange={(value) => setSearchQuery(value)}
+            selected={selected}
+            setSelected={setSelected}
           />
         )}
       </Box>
