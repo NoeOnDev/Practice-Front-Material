@@ -11,10 +11,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import {
-  getContacts,
   updateContact,
   deleteContact,
   createContact,
+  getContactsAndSearch,
 } from "../services/contactService";
 import { ContactsTable } from "../components/contacts/ContactsTable";
 import { ViewContactModal } from "../components/contacts/ViewContactModal";
@@ -23,7 +23,6 @@ import AddIcon from "@mui/icons-material/Add";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import { apiDateToDate, dateToApiDate } from "../utils/dateUtils";
 import { useDebounce } from "../hooks/useDebounce";
-import { searchContacts } from "../services/contactService";
 import { ContactsHeader } from "../components/contacts/ContactsHeader";
 
 export const Contacts = () => {
@@ -32,7 +31,6 @@ export const Contacts = () => {
   const [openEdit, setOpenEdit] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
   const [contactos, setContactos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDelete, setOpenDelete] = useState(false);
   const [deletingContact, setDeletingContact] = useState(null);
@@ -53,30 +51,25 @@ export const Contacts = () => {
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const handleSearch = useDebounce(
     useCallback(
       async (query) => {
-        if (!query.trim()) {
-          const response = await getContacts(page, rowsPerPage);
-          setContactos(response.data);
-          setTotalRows(response.total);
-          setSearching(false);
-          return;
-        }
-
         try {
-          setSearching(true);
-          const response = await searchContacts(query, page, rowsPerPage);
+          setSearchLoading(true);
+          const response = await getContactsAndSearch(query, page, rowsPerPage);
           setContactos(response.data);
           setTotalRows(response.total);
+          setError(null);
         } catch (error) {
           console.error("Error al buscar contactos:", error);
           setError("Error al buscar contactos");
+          setContactos([]);
         } finally {
-          setSearching(false);
+          setSearchLoading(false);
         }
       },
       [page, rowsPerPage]
@@ -85,28 +78,30 @@ export const Contacts = () => {
   );
 
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      const fetchContacts = async () => {
-        try {
-          setLoading(true);
-          const response = await getContacts(page, rowsPerPage);
-          setContactos(response.data);
-          setTotalRows(response.total);
-          setError(null);
-        } catch (err) {
-          console.error("Error al cargar contactos:", err);
-          setError("No se pudieron cargar los contactos");
-          setContactos([]);
-        } finally {
-          setLoading(false);
-        }
-      };
+    const fetchInitialData = async () => {
+      try {
+        setInitialLoading(true);
+        const response = await getContactsAndSearch("", 1, rowsPerPage);
+        setContactos(response.data);
+        setTotalRows(response.total);
+        setError(null);
+      } catch (error) {
+        console.error("Error al cargar contactos:", error);
+        setError("Error al cargar contactos");
+        setContactos([]);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
 
-      fetchContacts();
-    } else {
+    fetchInitialData();
+  }, [rowsPerPage]);
+
+  useEffect(() => {
+    if (!initialLoading) {
       handleSearch(searchQuery);
     }
-  }, [page, rowsPerPage, searchQuery, handleSearch]);
+  }, [searchQuery, page, rowsPerPage, handleSearch, initialLoading]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -160,9 +155,13 @@ export const Contacts = () => {
       };
 
       await updateContact(editingContact.id, updatedData);
-
-      const updatedContacts = await getContacts();
-      setContactos(updatedContacts);
+      const updatedContacts = await getContactsAndSearch(
+        searchQuery,
+        page,
+        rowsPerPage
+      );
+      setContactos(updatedContacts.data);
+      setTotalRows(updatedContacts.total);
 
       alert("Contacto actualizado exitosamente");
       handleCloseEdit();
@@ -184,8 +183,15 @@ export const Contacts = () => {
 
   const handleDeleteContact = async () => {
     try {
-      const response = await deleteContact(deletingContact.id);
-      setContactos(response.contacts);
+      await deleteContact(deletingContact.id);
+      const response = await getContactsAndSearch(
+        searchQuery,
+        page,
+        rowsPerPage
+      );
+      setContactos(response.data);
+      setTotalRows(response.total);
+
       alert("Contacto eliminado exitosamente");
       handleCloseDeleteDialog();
     } catch (error) {
@@ -240,9 +246,14 @@ export const Contacts = () => {
       };
 
       await createContact(transformedData);
-      const updatedContacts = await getContacts(page, rowsPerPage);
+      const updatedContacts = await getContactsAndSearch(
+        searchQuery,
+        page,
+        rowsPerPage
+      );
       setContactos(updatedContacts.data);
       setTotalRows(updatedContacts.total);
+
       alert("Contacto creado exitosamente");
       handleCloseCreate();
     } catch (error) {
@@ -258,7 +269,11 @@ export const Contacts = () => {
           await deleteContact(id);
         }
 
-        const updatedContacts = await getContacts(page, rowsPerPage);
+        const updatedContacts = await getContactsAndSearch(
+          searchQuery,
+          page,
+          rowsPerPage
+        );
         setContactos(updatedContacts.data);
         setTotalRows(updatedContacts.total);
 
@@ -270,7 +285,7 @@ export const Contacts = () => {
     }
   };
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
         <CircularProgress />
@@ -395,6 +410,7 @@ export const Contacts = () => {
             onSearchChange={(value) => setSearchQuery(value)}
             selected={selected}
             setSelected={setSelected}
+            loading={searchLoading} // Agregar esta prop
           />
         )}
       </Box>

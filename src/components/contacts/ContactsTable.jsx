@@ -13,6 +13,7 @@ import {
   TextField,
   InputAdornment,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -35,6 +36,7 @@ export const ContactsTable = ({
   onSearchChange,
   selected,
   setSelected,
+  loading,
 }) => {
   const handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -71,6 +73,11 @@ export const ContactsTable = ({
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon />
+              </InputAdornment>
+            ),
+            endAdornment: loading && (
+              <InputAdornment position="end">
+                <CircularProgress size={20} />
               </InputAdornment>
             ),
             sx: {
@@ -289,4 +296,5 @@ ContactsTable.propTypes = {
   onSearchChange: PropTypes.func.isRequired,
   selected: PropTypes.array.isRequired,
   setSelected: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
 };

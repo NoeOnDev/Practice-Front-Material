@@ -22,7 +22,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { es } from "date-fns/locale";
 import { useState } from "react";
-import { searchContacts } from "../../services/contactService";
+import { getContactsAndSearch } from "../../services/contactService";
 import { useDebounce } from "../../hooks/useDebounce";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -47,10 +47,10 @@ export const AppointmentFormModal = ({
 
     try {
       setLoading(true);
-      const response = await searchContacts(value);
+      const response = await getContactsAndSearch(value);
       setSearchResults(response.data);
     } catch (error) {
-      console.error("Error searching contacts:", error);
+      console.error("Error buscando contactos:", error);
       setSearchResults([]);
     } finally {
       setLoading(false);
@@ -64,15 +64,17 @@ export const AppointmentFormModal = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={onSubmit}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h6">{title}</Typography>
           <Box>
             {appointment.id && (
-              <IconButton
-                color="error"
-                onClick={onDelete}
-                size="small"
-              >
+              <IconButton color="error" onClick={onDelete} size="small">
                 <DeleteIcon />
               </IconButton>
             )}
@@ -201,7 +203,9 @@ export const AppointmentFormModal = ({
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ display: 'flex', justifyContent: 'flex-end', px: 2 }}>
+        <DialogActions
+          sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}
+        >
           <Button onClick={onClose}>Cancelar</Button>
           <Button type="submit" variant="contained" color="primary">
             Guardar
