@@ -146,7 +146,7 @@ export const ContactsTable = ({
                       onChange={handleSelectAll}
                     />
                   </TableCell>
-                  <TableCell>Nombre Completo</TableCell>
+                  <TableCell>Nombre</TableCell>
                   <TableCell>Correo Electrónico</TableCell>
                   <TableCell>Teléfono</TableCell>
                   <TableCell>Estado</TableCell>
@@ -173,7 +173,7 @@ export const ContactsTable = ({
                         onClick={() => onRowClick(contact)}
                         sx={{
                           cursor: "pointer",
-                          maxWidth: 200,
+                          maxWidth: 160,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -195,13 +195,25 @@ export const ContactsTable = ({
                       </TableCell>
                       <TableCell
                         onClick={() => onRowClick(contact)}
-                        sx={{ cursor: "pointer" }}
+                        sx={{
+                          cursor: "pointer",
+                          maxWidth: 120,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
                       >
                         {`${contact.phone_code} ${contact.phone_number}`}
                       </TableCell>
                       <TableCell
                         onClick={() => onRowClick(contact)}
-                        sx={{ cursor: "pointer" }}
+                        sx={{
+                          cursor: "pointer",
+                          maxWidth: 100,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
                       >
                         {contact.state}
                       </TableCell>
