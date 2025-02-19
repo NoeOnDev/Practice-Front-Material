@@ -6,8 +6,9 @@ import {
   Button,
   Typography,
   Stack,
+  IconButton,
 } from "@mui/material";
-import { ChevronLeft, ChevronRight, Today } from "@mui/icons-material";
+import { ChevronLeft, ChevronRight, Today, Settings } from "@mui/icons-material";
 import PropTypes from "prop-types";
 
 export const CalendarHeader = ({
@@ -17,6 +18,7 @@ export const CalendarHeader = ({
   onPrev,
   onNext,
   onToday,
+  onConfigClick,
 }) => {
   return (
     <Box
@@ -54,26 +56,40 @@ export const CalendarHeader = ({
           {title}
         </Typography>
 
-        <FormControl size="small">
-          <Select
-            value={viewMode}
-            onChange={onViewChange}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <IconButton
+            onClick={onConfigClick}
+            size="small"
             sx={{
-              minWidth: { xs: 100, sm: 120 },
-              height: { xs: 35, sm: 40 },
-              "& .MuiSelect-select": {
-                py: 1,
-                fontSize: { xs: "0.875rem", sm: "0.95rem" },
+              mr: 1,
+              "&:hover": {
+                backgroundColor: "action.hover",
               },
             }}
           >
-            <MenuItem value="multiMonthYear">Año</MenuItem>
-            <MenuItem value="dayGridMonth">Mes</MenuItem>
-            <MenuItem value="timeGridWeek">Semana</MenuItem>
-            <MenuItem value="timeGridDay">Día</MenuItem>
-            <MenuItem value="listWeek">Lista</MenuItem>
-          </Select>
-        </FormControl>
+            <Settings />
+          </IconButton>
+          <FormControl size="small">
+            <Select
+              value={viewMode}
+              onChange={onViewChange}
+              sx={{
+                minWidth: { xs: 100, sm: 120 },
+                height: { xs: 35, sm: 40 },
+                "& .MuiSelect-select": {
+                  py: 1,
+                  fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                },
+              }}
+            >
+              <MenuItem value="multiMonthYear">Año</MenuItem>
+              <MenuItem value="dayGridMonth">Mes</MenuItem>
+              <MenuItem value="timeGridWeek">Semana</MenuItem>
+              <MenuItem value="timeGridDay">Día</MenuItem>
+              <MenuItem value="listWeek">Lista</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       <Stack
@@ -142,4 +158,5 @@ CalendarHeader.propTypes = {
   onPrev: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,
   onToday: PropTypes.func.isRequired,
+  onConfigClick: PropTypes.func.isRequired,
 };

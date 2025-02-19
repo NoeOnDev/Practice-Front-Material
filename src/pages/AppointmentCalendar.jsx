@@ -10,12 +10,21 @@ import { useState, useRef, useEffect } from "react";
 import { CalendarHeader } from "../components/calendar/CalendarHeader";
 import { useAppointmentEvents } from "../components/calendar/AppointmentEvents";
 import { AppointmentFormModal } from "../components/calendar/AppointmentFormModal";
+import { CalendarConfigModal } from "../components/calendar/CalendarConfigModal";
 
 export const AppointmentCalendar = () => {
   const [viewMode, setViewMode] = useState("dayGridMonth");
   const [title, setTitle] = useState("");
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
+  const [configOpen, setConfigOpen] = useState(false);
+  const [calendarConfig, setCalendarConfig] = useState({
+    businessHours: {
+      daysOfWeek: [1, 2, 3, 4, 5],
+      startTime: "09:00",
+      endTime: "18:00",
+    },
+  });
 
   const {
     events,
@@ -76,6 +85,19 @@ export const AppointmentCalendar = () => {
     setTitle(arg.view.title);
   };
 
+  const handleConfigChange = (newConfig) => {
+    setCalendarConfig(newConfig);
+
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.setOption("businessHours", {
+        daysOfWeek: newConfig.businessHours.daysOfWeek,
+        startTime: newConfig.businessHours.startTime,
+        endTime: newConfig.businessHours.endTime,
+      });
+    }
+  };
+
   return (
     <Box
       ref={containerRef}
@@ -94,6 +116,7 @@ export const AppointmentCalendar = () => {
           onPrev={handlePrev}
           onNext={handleNext}
           onToday={handleToday}
+          onConfigClick={() => setConfigOpen(true)}
         />
 
         <Box
@@ -234,9 +257,9 @@ export const AppointmentCalendar = () => {
             selectMirror={true}
             dayMaxEvents={true}
             businessHours={{
-              daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-              startTime: "",
-              endTime: "",
+              daysOfWeek: calendarConfig.businessHours.daysOfWeek,
+              startTime: calendarConfig.businessHours.startTime,
+              endTime: calendarConfig.businessHours.endTime,
             }}
             selectConstraint="businessHours"
             handleWindowResize={true}
@@ -251,8 +274,7 @@ export const AppointmentCalendar = () => {
             eventMaxStack={3}
             eventContent={renderEventContent}
             eventOverlap={false}
-            selectOverlap={false}
-            slotEventOverlap={false}
+            weekNumbers={false}
           />
         </Box>
       </Paper>
@@ -266,6 +288,13 @@ export const AppointmentCalendar = () => {
         onChange={handleModalChange}
         onDelete={handleDeleteAppointment}
         title={selectedAppointment?.id ? "Editar Cita" : "Nueva Cita"}
+      />
+
+      <CalendarConfigModal
+        open={configOpen}
+        onClose={() => setConfigOpen(false)}
+        config={calendarConfig}
+        onConfigChange={handleConfigChange}
       />
     </Box>
   );
