@@ -43,10 +43,8 @@ export const useAppointmentEvents = () => {
 
   const handleEventClick = async (clickInfo) => {
     try {
-      // Obtener la información completa de la cita
       const appointment = await getAppointment(clickInfo.event.id);
 
-      // Actualizar el estado con la cita seleccionada
       setSelectedAppointment({
         ...appointment,
         start: new Date(appointment.start),
@@ -70,14 +68,11 @@ export const useAppointmentEvents = () => {
 
     try {
       if (selectedAppointment.id) {
-        // Si tiene ID, actualizar la cita existente
         await updateAppointment(selectedAppointment.id, selectedAppointment);
       } else {
-        // Si no tiene ID, crear nueva cita
         await createAppointment(selectedAppointment);
       }
 
-      // Recargar todas las citas para actualizar la vista
       const updatedAppointments = await getAppointments();
       setEvents(updatedAppointments);
       handleModalClose();

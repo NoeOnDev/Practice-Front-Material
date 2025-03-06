@@ -7,6 +7,8 @@ import {
   Grid,
   TextField,
   Autocomplete,
+  Typography,
+  Box,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -72,19 +74,23 @@ export const ContactFormModal = ({
                 required
               />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <Autocomplete
                 fullWidth
                 options={COUNTRY_CODES}
-                getOptionLabel={(option) =>
-                  typeof option === "string"
-                    ? option
-                    : `${option.code} - ${option.label}`
-                }
-                value={
-                  COUNTRY_CODES.find((c) => c.code === contact.phone_code) ||
-                  null
-                }
+                getOptionLabel={(option) => {
+                  if (typeof option === 'string') return option;
+                  return `${option.code}  ${option.label}`;
+                }}
+                filterOptions={(options, { inputValue }) => {
+                  const searchTerm = inputValue.toLowerCase();
+                  return options.filter(
+                    option => 
+                      option.code.toLowerCase().includes(searchTerm) || 
+                      option.label.toLowerCase().includes(searchTerm)
+                  );
+                }}
+                value={COUNTRY_CODES.find((c) => c.code === contact.phone_code) || null}
                 onChange={(event, newValue) => {
                   onChange({
                     target: {
@@ -99,18 +105,24 @@ export const ContactFormModal = ({
                     label="Código de País"
                     required
                     fullWidth
-                    inputProps={{
-                      ...params.inputProps,
-                      value: contact.phone_code || "",
-                    }}
+                    placeholder="Buscar por código o país..."
                   />
                 )}
                 renderOption={(props, option) => (
-                  <li {...props}>{option.label}</li>
+                  <li {...props}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {option.code}
+                      </Typography>
+                      <Typography variant="body1">
+                        {option.label}
+                      </Typography>
+                    </Box>
+                  </li>
                 )}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={3}>
               <TextField
                 fullWidth
                 label="Teléfono"
