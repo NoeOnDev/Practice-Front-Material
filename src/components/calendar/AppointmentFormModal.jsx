@@ -15,6 +15,8 @@ import {
   Typography,
   Box,
   IconButton,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -34,6 +36,7 @@ export const AppointmentFormModal = ({
   onChange,
   onDelete,
   title,
+  formStructure = { default_fields: [], custom_fields: [] },
 }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -58,6 +61,69 @@ export const AppointmentFormModal = ({
   };
 
   const debouncedSearch = useDebounce(handleSearchChange, 300);
+
+  const renderCustomField = (field) => {
+    const fieldId = `custom_${field.id}`;
+    const fieldValue =
+      appointment[fieldId] !== undefined ? appointment[fieldId] : "";
+
+    switch (field.type) {
+      case "text":
+        return (
+          <TextField
+            fullWidth
+            label={field.name}
+            name={fieldId}
+            value={fieldValue}
+            onChange={onChange}
+            required={field.required}
+          />
+        );
+
+      case "select":
+        return (
+          <FormControl fullWidth required={field.required}>
+            <InputLabel>{field.name}</InputLabel>
+            <Select
+              label={field.name}
+              name={fieldId}
+              value={fieldValue}
+              onChange={onChange}
+            >
+              {field.options?.map((option, index) => (
+                <MenuItem key={index} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        );
+
+      case "boolean":
+        return (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={!!fieldValue}
+                onChange={(e) =>
+                  onChange({
+                    target: {
+                      name: fieldId,
+                      value: e.target.checked,
+                    },
+                  })
+                }
+                name={fieldId}
+              />
+            }
+            label={field.name}
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
 
   if (!open) return null;
 
@@ -189,18 +255,24 @@ export const AppointmentFormModal = ({
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Notas"
-                name="notes"
-                value={appointment.notes || ""}
-                onChange={onChange}
-                multiline
-                rows={3}
-                placeholder="Agrega notas o comentarios adicionales sobre la cita"
-              />
-            </Grid>
+
+            {formStructure.custom_fields &&
+              formStructure.custom_fields.length > 0 && (
+                <Grid item xs={12}>
+                  <Grid container spacing={2}>
+                    {formStructure.custom_fields.map((field) => (
+                      <Grid
+                        item
+                        xs={12}
+                        md={field.type === "boolean" ? 12 : 6}
+                        key={field.id}
+                      >
+                        {renderCustomField(field)}
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Grid>
+              )}
           </Grid>
         </DialogContent>
         <DialogActions
@@ -224,4 +296,5 @@ AppointmentFormModal.propTypes = {
   onChange: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
   title: PropTypes.string.isRequired,
+  formStructure: PropTypes.object,
 };

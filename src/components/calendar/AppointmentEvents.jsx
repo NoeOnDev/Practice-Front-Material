@@ -5,22 +5,71 @@ import {
   getAppointment,
   updateAppointment,
   deleteAppointment,
+  getAppointmentFormStructure,
 } from "../../services/appointmentService";
+import { getBusinessTypes } from "../../services/businessService";
 
 export const useAppointmentEvents = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [businessTypes, setBusinessTypes] = useState([]);
+  const [formStructure, setFormStructure] = useState({
+    default_fields: [],
+    custom_fields: [],
+  });
+  const [calendarApi, setCalendarApi] = useState(null);
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
+        setLoading(true);
         const appointments = await getAppointments();
         setEvents(appointments);
+
+        try {
+          const structure = await getAppointmentFormStructure();
+          setFormStructure(structure);
+        } catch (structureError) {
+          console.error(
+            "Error obteniendo la estructura del formulario:",
+            structureError
+          );
+        }
+
+        setShowOnboarding(false);
       } catch (error) {
         console.error("Error al cargar las citas:", error);
-        alert("Error al cargar las citas");
+
+        if (
+          error.response &&
+          error.response.status === 403 &&
+          error.response.data.error_type === "business_type_required"
+        ) {
+          console.log("Se requiere seleccionar un tipo de negocio");
+
+          if (error.response.data.business_types?.business_types) {
+            setBusinessTypes(error.response.data.business_types.business_types);
+          } else {
+            try {
+              const typesResponse = await getBusinessTypes();
+              if (typesResponse.business_types) {
+                setBusinessTypes(typesResponse.business_types);
+              }
+            } catch (businessTypesError) {
+              console.error(
+                "Error al obtener tipos de negocio:",
+                businessTypesError
+              );
+            }
+          }
+
+          setShowOnboarding(true);
+        } else {
+          alert("Error al cargar las citas");
+        }
       } finally {
         setLoading(false);
       }
@@ -30,27 +79,45 @@ export const useAppointmentEvents = () => {
   }, []);
 
   const handleSelect = (selectInfo) => {
+    setCalendarApi(selectInfo.view.calendar);
+
+    const customFieldsValues = {};
+    formStructure.custom_fields.forEach((field) => {
+      if (field.type === "boolean") {
+        customFieldsValues[`custom_${field.id}`] = false;
+      } else if (
+        field.type === "select" &&
+        field.options &&
+        field.options.length > 0
+      ) {
+        customFieldsValues[`custom_${field.id}`] = field.options[0];
+      } else {
+        customFieldsValues[`custom_${field.id}`] = "";
+      }
+    });
+
     setSelectedAppointment({
       title: "",
       contact: null,
       start: selectInfo.start,
       end: selectInfo.end,
       status: "pending",
+      ...customFieldsValues,
     });
     setOpenModal(true);
-    selectInfo.view.calendar.unselect();
   };
 
   const handleEventClick = async (clickInfo) => {
     try {
       const appointment = await getAppointment(clickInfo.event.id);
 
-      setSelectedAppointment({
+      const appointmentWithDates = {
         ...appointment,
         start: new Date(appointment.start),
         end: new Date(appointment.end),
-      });
+      };
 
+      setSelectedAppointment(appointmentWithDates);
       setOpenModal(true);
     } catch (error) {
       console.error("Error al obtener la cita:", error);
@@ -61,6 +128,9 @@ export const useAppointmentEvents = () => {
   const handleModalClose = () => {
     setOpenModal(false);
     setSelectedAppointment(null);
+    if (calendarApi) {
+      calendarApi.unselect();
+    }
   };
 
   const handleModalSubmit = async (event) => {
@@ -79,6 +149,10 @@ export const useAppointmentEvents = () => {
     } catch (error) {
       console.error("Error al guardar la cita:", error);
       alert("Error al guardar la cita. Por favor intente nuevamente.");
+
+      if (calendarApi) {
+        calendarApi.unselect();
+      }
     }
   };
 
@@ -164,10 +238,26 @@ export const useAppointmentEvents = () => {
     );
   };
 
+  const handleBusinessTypeSelection = async (businessTypeId, mode) => {
+    try {
+      setLoading(true);
+      return { businessTypeId, mode };
+    } catch (error) {
+      console.error("Error al seleccionar el tipo de negocio:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     events,
+    loading,
     openModal,
     selectedAppointment,
+    showOnboarding,
+    businessTypes,
+    formStructure,
     handleSelect,
     handleEventClick,
     handleEventChange,
@@ -175,6 +265,7 @@ export const useAppointmentEvents = () => {
     handleModalSubmit,
     handleModalChange,
     handleDeleteAppointment,
+    handleBusinessTypeSelection,
     renderEventContent,
   };
 };

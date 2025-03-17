@@ -5,12 +5,13 @@ import multiMonthPlugin from "@fullcalendar/multimonth";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
-import { Box, Paper } from "@mui/material";
+import { Box, Paper, CircularProgress } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import { CalendarHeader } from "../components/calendar/CalendarHeader";
 import { useAppointmentEvents } from "../components/calendar/AppointmentEvents";
 import { AppointmentFormModal } from "../components/calendar/AppointmentFormModal";
 import { CalendarConfigModal } from "../components/calendar/CalendarConfigModal";
+import { BusinessTypeOnboarding } from "../components/calendar/BusinessTypeOnboarding";
 
 export const AppointmentCalendar = () => {
   const [viewMode, setViewMode] = useState("dayGridMonth");
@@ -28,8 +29,12 @@ export const AppointmentCalendar = () => {
 
   const {
     events,
+    loading,
     openModal,
     selectedAppointment,
+    showOnboarding,
+    businessTypes,
+    formStructure,
     handleSelect,
     handleEventClick,
     handleEventChange,
@@ -39,6 +44,10 @@ export const AppointmentCalendar = () => {
     handleDeleteAppointment,
     renderEventContent,
   } = useAppointmentEvents();
+
+  const handleOnboardingComplete = () => {
+    window.location.reload();
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -97,6 +106,31 @@ export const AppointmentCalendar = () => {
       });
     }
   };
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (showOnboarding) {
+    return (
+      <BusinessTypeOnboarding
+        businessTypes={businessTypes}
+        onComplete={handleOnboardingComplete}
+      />
+    );
+  }
 
   return (
     <Box
@@ -255,13 +289,21 @@ export const AppointmentCalendar = () => {
             editable={true}
             selectable={true}
             selectMirror={true}
+            selectOverlap={false}
+            selectAllow={function (selectInfo) {
+              return (
+                selectInfo.start.getTime() >= new Date().getTime() &&
+                selectInfo.end.getTime() >= selectInfo.start.getTime()
+              );
+            }}
+
             dayMaxEvents={true}
             businessHours={{
               daysOfWeek: calendarConfig.businessHours.daysOfWeek,
               startTime: calendarConfig.businessHours.startTime,
               endTime: calendarConfig.businessHours.endTime,
             }}
-            selectConstraint="businessHours"
+            // selectConstraint="businessHours"
             handleWindowResize={true}
             events={events}
             select={handleSelect}
@@ -288,6 +330,7 @@ export const AppointmentCalendar = () => {
         onChange={handleModalChange}
         onDelete={handleDeleteAppointment}
         title={selectedAppointment?.id ? "Editar Cita" : "Nueva Cita"}
+        formStructure={formStructure}
       />
 
       <CalendarConfigModal

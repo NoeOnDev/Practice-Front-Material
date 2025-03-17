@@ -66,84 +66,81 @@ export const CalendarConfigModal = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Configuración del Calendario</DialogTitle>
       <DialogContent>
-        <Grid container spacing={3} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1" gutterBottom>
-              Horario Laboral
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-
-            <Typography variant="subtitle2" gutterBottom sx={{ mb: 1 }}>
-              Días laborales
-            </Typography>
-            <Grid container spacing={1} sx={{ mb: 2 }}>
-              {weekDays.map((day) => (
-                <Grid item xs={6} sm={4} key={day.value}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={config.businessHours.daysOfWeek.includes(
-                          day.value
-                        )}
-                        onChange={(e) =>
-                          handleChange({
-                            target: {
-                              name: "daysOfWeek",
-                              value: day.value,
-                              checked: e.target.checked,
-                            },
-                          })
-                        }
-                      />
+        <Divider sx={{ mb: 2 }} />
+        <Typography variant="subtitle1" fontWeight="500" gutterBottom>
+          Días laborales
+        </Typography>
+        <Grid container spacing={1} sx={{ mt: 1 }}>
+          {weekDays.map((day) => (
+            <Grid item xs={6} sm={4} key={day.value}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={config.businessHours.daysOfWeek.includes(
+                      day.value
+                    )}
+                    onChange={(e) =>
+                      handleChange({
+                        target: {
+                          name: "daysOfWeek",
+                          value: day.value,
+                          checked: e.target.checked,
+                        },
+                      })
                     }
-                    label={day.label}
                   />
-                </Grid>
-              ))}
+                }
+                label={day.label}
+              />
             </Grid>
+          ))}
+        </Grid>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Hora de inicio</InputLabel>
-                  <Select
-                    value={config.businessHours.startTime}
-                    onChange={handleChange}
-                    name="businessHours.startTime"
-                    label="Hora de inicio"
+        <Divider sx={{ mb: 2 }} />
+
+        <Typography variant="subtitle1" fontWeight="500" gutterBottom>
+          Horas laborales
+        </Typography>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Hora de inicio</InputLabel>
+              <Select
+                value={config.businessHours.startTime}
+                onChange={handleChange}
+                name="businessHours.startTime"
+                label="Hora de inicio"
+              >
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <MenuItem
+                    key={i}
+                    value={`${i.toString().padStart(2, "0")}:00`}
                   >
-                    {Array.from({ length: 24 }).map((_, i) => (
-                      <MenuItem
-                        key={i}
-                        value={`${i.toString().padStart(2, "0")}:00`}
-                      >
-                        {`${i.toString().padStart(2, "0")}:00`}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Hora de fin</InputLabel>
-                  <Select
-                    value={config.businessHours.endTime}
-                    onChange={handleChange}
-                    name="businessHours.endTime"
-                    label="Hora de fin"
+                    {`${i.toString().padStart(2, "0")}:00`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Hora de fin</InputLabel>
+              <Select
+                value={config.businessHours.endTime}
+                onChange={handleChange}
+                name="businessHours.endTime"
+                label="Hora de fin"
+              >
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <MenuItem
+                    key={i}
+                    value={`${i.toString().padStart(2, "0")}:00`}
                   >
-                    {Array.from({ length: 24 }).map((_, i) => (
-                      <MenuItem
-                        key={i}
-                        value={`${i.toString().padStart(2, "0")}:00`}
-                      >
-                        {`${i.toString().padStart(2, "0")}:00`}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
+                    {`${i.toString().padStart(2, "0")}:00`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
       </DialogContent>

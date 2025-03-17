@@ -9,11 +9,22 @@ export const createAppointment = async (appointmentData) => {
     const formattedData = {
       contact_id: appointmentData.contact.id,
       title: appointmentData.title,
-      notes: appointmentData.notes,
       start: appointmentData.start.toISOString().slice(0, 19).replace("T", " "),
       end: appointmentData.end.toISOString().slice(0, 19).replace("T", " "),
       status: appointmentData.status,
     };
+
+    const fieldValues = {};
+    Object.keys(appointmentData).forEach((key) => {
+      if (key.startsWith("custom_")) {
+        const fieldId = key.replace("custom_", "");
+        fieldValues[fieldId] = appointmentData[key];
+      }
+    });
+
+    if (Object.keys(fieldValues).length > 0) {
+      formattedData.field_values = fieldValues;
+    }
 
     const response = await axios.post(
       `${API_URL}/appointments`,
@@ -46,7 +57,6 @@ export const getAppointments = async () => {
     return response.data.data.map((appointment) => ({
       id: appointment.id,
       title: appointment.title,
-      notes: appointment.notes,
       start: appointment.start,
       end: appointment.end,
       status: appointment.status,
@@ -56,6 +66,24 @@ export const getAppointments = async () => {
     }));
   } catch (error) {
     console.error("Error fetching appointments:", error);
+    throw error;
+  }
+};
+
+export const getAppointmentFormStructure = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(`${API_URL}/appointments/form-structure`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo la estructura del formulario:", error);
     throw error;
   }
 };
@@ -85,10 +113,10 @@ export const getAppointment = async (id) => {
     });
 
     const { appointment } = response.data;
-    return {
+
+    const formattedAppointment = {
       id: appointment.id,
       title: appointment.title,
-      notes: appointment.notes,
       start: appointment.start,
       end: appointment.end,
       status: appointment.status,
@@ -96,6 +124,15 @@ export const getAppointment = async (id) => {
       backgroundColor: getStatusColor(appointment.status),
       borderColor: getStatusColor(appointment.status),
     };
+
+    if (appointment.field_values && appointment.field_values.length > 0) {
+      appointment.field_values.forEach((fieldValue) => {
+        formattedAppointment[`custom_${fieldValue.appointment_field_id}`] =
+          fieldValue.value;
+      });
+    }
+
+    return formattedAppointment;
   } catch (error) {
     console.error("Error obteniendo la cita:", error);
     throw error;
@@ -109,11 +146,22 @@ export const updateAppointment = async (id, appointmentData) => {
     const formattedData = {
       contact_id: appointmentData.contact.id,
       title: appointmentData.title,
-      notes: appointmentData.notes,
       start: appointmentData.start.toISOString().slice(0, 19).replace("T", " "),
       end: appointmentData.end.toISOString().slice(0, 19).replace("T", " "),
       status: appointmentData.status,
     };
+
+    const fieldValues = {};
+    Object.keys(appointmentData).forEach((key) => {
+      if (key.startsWith("custom_")) {
+        const fieldId = key.replace("custom_", "");
+        fieldValues[fieldId] = appointmentData[key];
+      }
+    });
+
+    if (Object.keys(fieldValues).length > 0) {
+      formattedData.field_values = fieldValues;
+    }
 
     const response = await axios.patch(
       `${API_URL}/appointments/${id}`,

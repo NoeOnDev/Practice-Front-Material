@@ -29,12 +29,13 @@ const demoTheme = createTheme({
 function DemoPageContent({ pathname }) {
   let content;
   switch (pathname) {
-    case "/contacts":
-      content = <Contacts />;
-      break;
     case "/calendar":
       content = <AppointmentCalendar />;
       break;
+    case "/contacts":
+      content = <Contacts />;
+      break;
+
     default:
       content = <Typography>Page not found</Typography>;
   }
@@ -62,7 +63,7 @@ DemoPageContent.propTypes = {
 export const DashboardLayoutNavigationLinks = (props) => {
   const { window } = props;
 
-  const router = useDemoRouter("/contacts");
+  const router = useDemoRouter("/calendar");
 
   const demoWindow = window !== undefined ? window() : undefined;
 
@@ -70,20 +71,20 @@ export const DashboardLayoutNavigationLinks = (props) => {
     <AppProvider
       navigation={[
         {
+          segment: "calendar",
+          title: "Agenda",
+          icon: <CalendarIcon />,
+        },
+        {
           segment: "contacts",
           title: "Lista de Contactos",
           icon: <ContactMailIcon />,
         },
-        {
-          segment: "calendar",
-          title: "Calendario",
-          icon: <CalendarIcon />,
-        },
       ]}
       branding={{
-        logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
-        title: "My Dashboard",
-        homeUrl: "/contacts",
+        logo: null,
+        title: "Agenda Pro",
+        homeUrl: "/calendar",
       }}
       router={router}
       theme={demoTheme}
