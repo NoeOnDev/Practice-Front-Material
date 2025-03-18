@@ -20,16 +20,12 @@ export const getBusinessTypes = async () => {
   }
 };
 
-export const selectBusinessType = async (
-  businessTypeId,
-  mode = "customize"
-) => {
+export const selectBusinessType = async (businessTypeId) => {
   try {
     const token = localStorage.getItem("token");
 
     const data = {
       business_type_id: businessTypeId,
-      mode: mode,
     };
 
     const response = await axios.post(

@@ -12,6 +12,7 @@ import { useAppointmentEvents } from "../components/calendar/AppointmentEvents";
 import { AppointmentFormModal } from "../components/calendar/AppointmentFormModal";
 import { CalendarConfigModal } from "../components/calendar/CalendarConfigModal";
 import { BusinessTypeOnboarding } from "../components/calendar/BusinessTypeOnboarding";
+import { customScrollbarStyles } from "../utils/styleUtils";
 
 export const AppointmentCalendar = () => {
   const [viewMode, setViewMode] = useState("dayGridMonth");
@@ -244,6 +245,7 @@ export const AppointmentCalendar = () => {
               backgroundColor: "background.paper",
               color: "text.secondary",
             },
+            ...customScrollbarStyles,
           }}
         >
           <FullCalendar
@@ -296,7 +298,6 @@ export const AppointmentCalendar = () => {
                 selectInfo.end.getTime() >= selectInfo.start.getTime()
               );
             }}
-
             dayMaxEvents={true}
             businessHours={{
               daysOfWeek: calendarConfig.businessHours.daysOfWeek,

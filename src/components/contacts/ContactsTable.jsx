@@ -21,6 +21,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import PropTypes from "prop-types";
 import { formatDate } from "../../utils/dateUtils";
+import { customScrollbarStyles } from "../../utils/styleUtils";
 
 export const ContactsTable = ({
   contacts,
@@ -116,19 +117,7 @@ export const ContactsTable = ({
             sx={{
               flex: 1,
               overflowY: "auto",
-              "&::-webkit-scrollbar": {
-                width: "8px",
-              },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "background.default",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "grey.400",
-                borderRadius: "4px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                backgroundColor: "grey.500",
-              },
+              ...customScrollbarStyles,
             }}
           >
             <Table stickyHeader>

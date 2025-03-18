@@ -23,7 +23,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { es } from "date-fns/locale";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getContactsAndSearch } from "../../services/contactService";
 import { useDebounce } from "../../hooks/useDebounce";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -41,17 +41,36 @@ export const AppointmentFormModal = ({
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [autocompleteOpen, setAutocompleteOpen] = useState(false);
 
-  const handleSearchChange = async (value) => {
-    if (!value) {
-      setSearchResults([]);
-      return;
+  useEffect(() => {
+    if (open || autocompleteOpen) {
+      loadInitialContacts();
     }
+  }, [open, autocompleteOpen]);
 
+  const loadInitialContacts = async () => {
     try {
       setLoading(true);
-      const response = await getContactsAndSearch(value);
+      const response = await getContactsAndSearch("", 1, 15);
       setSearchResults(response.data);
+    } catch (error) {
+      console.error("Error cargando contactos iniciales:", error);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchChange = async (value) => {
+    try {
+      setLoading(true);
+      if (!value || value.trim() === "") {
+        await loadInitialContacts();
+      } else {
+        const response = await getContactsAndSearch(value);
+        setSearchResults(response.data);
+      }
     } catch (error) {
       console.error("Error buscando contactos:", error);
       setSearchResults([]);
@@ -77,6 +96,22 @@ export const AppointmentFormModal = ({
             value={fieldValue}
             onChange={onChange}
             required={field.required}
+          />
+        );
+
+      case "number":
+        return (
+          <TextField
+            fullWidth
+            label={field.name}
+            name={fieldId}
+            value={fieldValue}
+            onChange={onChange}
+            required={field.required}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
           />
         );
 
@@ -148,7 +183,7 @@ export const AppointmentFormModal = ({
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <Autocomplete
                 fullWidth
                 options={searchResults}
@@ -167,11 +202,20 @@ export const AppointmentFormModal = ({
                     target: { name: "contact", value: newValue },
                   });
                 }}
+                onOpen={() => {
+                  setAutocompleteOpen(true);
+                }}
+                onClose={() => {
+                  setAutocompleteOpen(false);
+                }}
+                noOptionsText="No se encontraron contactos"
+                loadingText="Cargando contactos..."
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label="Contacto"
                     required
+                    placeholder="Seleccione un contacto o busque por nombre"
                     InputProps={{
                       ...params.InputProps,
                       endAdornment: (
@@ -187,14 +231,14 @@ export const AppointmentFormModal = ({
                 )}
                 renderOption={(props, option) => (
                   <li {...props} key={option.id}>
-                    <div>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
                       <Typography variant="body1">
                         {`${option.first_name} ${option.last_name}`}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {option.email}
                       </Typography>
-                    </div>
+                    </Box>
                   </li>
                 )}
               />
@@ -209,6 +253,23 @@ export const AppointmentFormModal = ({
                 required
               />
             </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel>Estado</InputLabel>
+                <Select
+                  label="Estado"
+                  name="status"
+                  value={appointment.status}
+                  onChange={onChange}
+                  required
+                >
+                  <MenuItem value="pending">Pendiente</MenuItem>
+                  <MenuItem value="confirmed">Confirmada</MenuItem>
+                  <MenuItem value="cancelled">Cancelada</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
             <Grid item xs={12} md={6}>
               <LocalizationProvider
                 dateAdapter={AdapterDateFns}
@@ -238,22 +299,6 @@ export const AppointmentFormModal = ({
                   }}
                 />
               </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Estado</InputLabel>
-                <Select
-                  label="Estado"
-                  name="status"
-                  value={appointment.status}
-                  onChange={onChange}
-                  required
-                >
-                  <MenuItem value="pending">Pendiente</MenuItem>
-                  <MenuItem value="confirmed">Confirmada</MenuItem>
-                  <MenuItem value="cancelled">Cancelada</MenuItem>
-                </Select>
-              </FormControl>
             </Grid>
 
             {formStructure.custom_fields &&
