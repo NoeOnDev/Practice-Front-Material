@@ -12,17 +12,38 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { selectBusinessType } from "../../services/businessService";
 import { TypeSelectionStep } from "./onboarding/TypeSelectionStep";
+import { getAppointmentFormStructure } from "../../services/appointmentService";
 import { FormPreviewStep } from "./onboarding/FormPreviewStep";
+import { CustomizeFormStep } from "./onboarding/CustomizeFormStep";
 
 export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
   const [selectedType, setSelectedType] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [formStructure, setFormStructure] = useState(null);
+  const [customizationCompleted, setCustomizationCompleted] = useState(false);
 
-  const steps = ["Seleccionar tipo de negocio", "Vista previa"];
+  const steps = ["Seleccionar tipo de negocio", "Vista previa", "Personalizar"];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (activeStep === 0 && !selectedType) return;
+
+    if (activeStep === 1) {
+      try {
+        setLoading(true);
+        await selectBusinessType(selectedType.id);
+
+        const structure = await getAppointmentFormStructure();
+        setFormStructure(structure);
+      } catch (error) {
+        console.error("Error al preparar la personalización:", error);
+        alert("Ha ocurrido un error. Por favor, inténtalo de nuevo.");
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
+
     setActiveStep((prevStep) => prevStep + 1);
   };
 
@@ -36,15 +57,25 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
     try {
       setLoading(true);
 
-      await selectBusinessType(selectedType.id);
+      if (activeStep === 1) {
+        await selectBusinessType(selectedType.id);
+      }
 
       onComplete();
     } catch (error) {
-      console.error("Error al seleccionar el tipo de negocio:", error);
+      console.error("Error al finalizar el onboarding:", error);
       alert("Ha ocurrido un error. Por favor, inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCustomizationComplete = () => {
+    setCustomizationCompleted(true);
+  };
+
+  const handleSkipCustomization = () => {
+    handleFinish();
   };
 
   const renderStepContent = () => {
@@ -59,9 +90,27 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
         );
       case 1:
         return <FormPreviewStep selectedType={selectedType} />;
+      case 2:
+        return (
+          <CustomizeFormStep
+            formStructure={formStructure}
+            selectedType={selectedType}
+            onComplete={handleCustomizationComplete}
+          />
+        );
       default:
         return null;
     }
+  };
+
+  const isNextDisabled = () => {
+    if (activeStep === 0) return !selectedType;
+    return false;
+  };
+
+  const isFinishDisabled = () => {
+    if (activeStep === 2) return !customizationCompleted && loading;
+    return loading;
   };
 
   return (
@@ -71,7 +120,7 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        p: 3,
+        p: 2,
         position: "relative",
       }}
     >
@@ -121,22 +170,37 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
           </Button>
         )}
 
+        {activeStep === 1 && (
+          <Button
+            variant="outlined"
+            onClick={handleSkipCustomization}
+            disabled={loading}
+            sx={{ minWidth: 120 }}
+          >
+            Finalizar sin personalizar
+          </Button>
+        )}
+
         {activeStep < steps.length - 1 ? (
           <Button
             variant="contained"
             onClick={handleNext}
             endIcon={<ArrowForwardIcon />}
-            disabled={!selectedType}
+            disabled={isNextDisabled() || loading}
             sx={{ minWidth: 120 }}
           >
-            Siguiente
+            {loading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "Siguiente"
+            )}
           </Button>
         ) : (
           <Button
             variant="contained"
             color="primary"
             onClick={handleFinish}
-            disabled={loading}
+            disabled={isFinishDisabled()}
             sx={{ minWidth: 120 }}
           >
             {loading ? (

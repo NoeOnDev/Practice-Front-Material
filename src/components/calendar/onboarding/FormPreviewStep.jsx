@@ -140,11 +140,6 @@ export const FormPreviewStep = ({ selectedType }) => {
         </Box>
       </Paper>
 
-      <Alert severity="info" sx={{ mb: 4 }}>
-        Podrás personalizar esta configuración más adelante desde los ajustes de
-        tu agenda.
-      </Alert>
-
       <FormPreviewModal
         open={previewModalOpen}
         onClose={() => setPreviewModalOpen(false)}
