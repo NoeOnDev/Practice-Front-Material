@@ -12,7 +12,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { selectBusinessType } from "../../services/businessService";
 import { TypeSelectionStep } from "./onboarding/TypeSelectionStep";
-import { getAppointmentFormStructure } from "../../services/appointmentService";
+import { getAppointmentFields } from "../../services/appointmentFieldService";
 import { FormPreviewStep } from "./onboarding/FormPreviewStep";
 import { CustomizeFormStep } from "./onboarding/CustomizeFormStep";
 
@@ -33,8 +33,11 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
         setLoading(true);
         await selectBusinessType(selectedType.id);
 
-        const structure = await getAppointmentFormStructure();
-        setFormStructure(structure);
+        const fields = await getAppointmentFields();
+        
+        setFormStructure({
+          custom_fields: fields
+        });
       } catch (error) {
         console.error("Error al preparar la personalización:", error);
         alert("Ha ocurrido un error. Por favor, inténtalo de nuevo.");

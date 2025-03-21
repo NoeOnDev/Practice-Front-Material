@@ -70,24 +70,6 @@ export const getAppointments = async () => {
   }
 };
 
-export const getAppointmentFormStructure = async () => {
-  try {
-    const token = localStorage.getItem("token");
-
-    const response = await axios.get(`${API_URL}/appointments/form-structure`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Error obteniendo la estructura del formulario:", error);
-    throw error;
-  }
-};
-
 const getStatusColor = (status) => {
   switch (status) {
     case "confirmed":

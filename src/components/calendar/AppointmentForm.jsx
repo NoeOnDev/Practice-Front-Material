@@ -288,7 +288,7 @@ AppointmentForm.propTypes = {
 
 AppointmentForm.defaultProps = {
   appointment: {},
-  formStructure: { default_fields: [], custom_fields: [] },
+  formStructure: { custom_fields: [] },
   contacts: [],
   loading: false,
   readOnlyDates: false,

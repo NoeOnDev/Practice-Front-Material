@@ -103,30 +103,3 @@ export const deleteAppointmentField = async (fieldId) => {
     throw error;
   }
 };
-
-export const reorderAppointmentFields = async (fieldsOrder) => {
-  try {
-    const token = localStorage.getItem("token");
-
-    const orderData = fieldsOrder.map((id, index) => ({
-      id,
-      order: index + 1,
-    }));
-
-    const response = await axios.put(
-      `${API_URL}/appointment-fields/reorder`,
-      { fields: orderData },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error("Error reordenando campos personalizados:", error);
-    throw error;
-  }
-};

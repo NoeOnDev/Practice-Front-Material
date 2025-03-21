@@ -23,7 +23,7 @@ export const AppointmentFormModal = ({
   onChange,
   onDelete,
   title,
-  formStructure = { default_fields: [], custom_fields: [] },
+  formStructure = { custom_fields: [] },
 }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);

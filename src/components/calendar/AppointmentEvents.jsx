@@ -5,9 +5,9 @@ import {
   getAppointment,
   updateAppointment,
   deleteAppointment,
-  getAppointmentFormStructure,
 } from "../../services/appointmentService";
 import { getBusinessTypes } from "../../services/businessService";
+import { getAppointmentFields } from "../../services/appointmentFieldService";
 
 export const useAppointmentEvents = () => {
   const [events, setEvents] = useState([]);
@@ -17,7 +17,6 @@ export const useAppointmentEvents = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [businessTypes, setBusinessTypes] = useState([]);
   const [formStructure, setFormStructure] = useState({
-    default_fields: [],
     custom_fields: [],
   });
   const [calendarApi, setCalendarApi] = useState(null);
@@ -30,11 +29,13 @@ export const useAppointmentEvents = () => {
         setEvents(appointments);
 
         try {
-          const structure = await getAppointmentFormStructure();
-          setFormStructure(structure);
+          const fields = await getAppointmentFields();
+          setFormStructure({
+            custom_fields: fields,
+          });
         } catch (structureError) {
           console.error(
-            "Error obteniendo la estructura del formulario:",
+            "Error obteniendo los campos personalizados:",
             structureError
           );
         }

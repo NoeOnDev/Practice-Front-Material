@@ -29,7 +29,6 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import { customScrollbarStyles } from "../../../utils/styleUtils";
 import PropTypes from "prop-types";
 import {
@@ -38,7 +37,6 @@ import {
   updateAppointmentField,
   deleteAppointmentField,
 } from "../../../services/appointmentFieldService";
-import { FormPreviewModal } from "./FormPreviewModal";
 
 export const CustomizeFormStep = ({
   formStructure,
@@ -65,9 +63,6 @@ export const CustomizeFormStep = ({
 
   const [newOptionText, setNewOptionText] = useState("");
 
-  // Estado para controlar la apertura del modal de preview
-  const [previewModalOpen, setPreviewModalOpen] = useState(false);
-
   useEffect(() => {
     const loadFields = async () => {
       setLoading(true);
@@ -75,7 +70,6 @@ export const CustomizeFormStep = ({
         const fieldsData = await getAppointmentFields();
         setFields(fieldsData);
 
-        // Notificar al componente padre que ya hay campos disponibles
         if (fieldsData && fieldsData.length > 0) {
           onComplete({
             custom_fields: fieldsData,
@@ -278,11 +272,6 @@ export const CustomizeFormStep = ({
     );
   }
 
-  const previewBusinessType = {
-    ...(selectedType || {}),
-    fields: fields,
-  };
-
   return (
     <Box
       sx={{
@@ -405,17 +394,7 @@ export const CustomizeFormStep = ({
               ))}
             </List>
 
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
-            >
-              <Button
-                variant="outlined"
-                startIcon={<VisibilityIcon />}
-                onClick={() => setPreviewModalOpen(true)}
-              >
-                Ver formulario personalizado
-              </Button>
-
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
               <Button
                 variant="outlined"
                 startIcon={<AddIcon />}
@@ -575,12 +554,6 @@ export const CustomizeFormStep = ({
           </Button>
         </DialogActions>
       </Dialog>
-
-      <FormPreviewModal
-        open={previewModalOpen}
-        onClose={() => setPreviewModalOpen(false)}
-        businessType={previewBusinessType}
-      />
     </Box>
   );
 };
