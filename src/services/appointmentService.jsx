@@ -72,7 +72,7 @@ export const getAppointments = async () => {
 
 const getStatusColor = (status) => {
   switch (status) {
-    case "confirmed":
+    case "attended":
       return "#4caf50";
     case "pending":
       return "#ff9800";
@@ -103,6 +103,9 @@ export const getAppointment = async (id) => {
       end: appointment.end,
       status: appointment.status,
       contact: appointment.contact,
+      created_at: appointment.created_at,
+      updated_at: appointment.updated_at,
+      field_values: appointment.field_values, // Asegurarse de incluir field_values
       backgroundColor: getStatusColor(appointment.status),
       borderColor: getStatusColor(appointment.status),
     };
@@ -177,6 +180,33 @@ export const deleteAppointment = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Error eliminando la cita:", error);
+    throw error;
+  }
+};
+
+export const attendAppointment = async (id, attendData) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const data = {
+      ...attendData,
+      status: attendData.status || "attended",
+    };
+
+    const response = await axios.post(
+      `${API_URL}/appointments/${id}/attend`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error atendiendo cita:", error);
     throw error;
   }
 };
