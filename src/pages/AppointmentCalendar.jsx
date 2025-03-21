@@ -44,6 +44,7 @@ export const AppointmentCalendar = () => {
     handleModalChange,
     handleDeleteAppointment,
     renderEventContent,
+    handleAttendComplete,
   } = useAppointmentEvents();
 
   const handleOnboardingComplete = () => {
@@ -332,6 +333,7 @@ export const AppointmentCalendar = () => {
         onDelete={handleDeleteAppointment}
         title={selectedAppointment?.id ? "Editar Cita" : "Nueva Cita"}
         formStructure={formStructure}
+        onAttendComplete={handleAttendComplete}
       />
 
       <CalendarConfigModal

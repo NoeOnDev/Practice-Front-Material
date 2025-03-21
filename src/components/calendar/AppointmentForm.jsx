@@ -9,9 +9,6 @@ import {
   CircularProgress,
   Typography,
   Box,
-  FormControlLabel,
-  Switch,
-  Divider,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -22,103 +19,12 @@ import { es } from "date-fns/locale";
 export const AppointmentForm = ({
   appointment,
   onChange,
-  customFields,
-  onCustomFieldChange,
-  formStructure,
   contacts,
   loading,
   inputValue,
   onInputChange,
   readOnlyDates,
-  isPreview,
 }) => {
-  const renderCustomField = (field) => {
-    const fieldId = `custom_${field.id}`;
-    const fieldValue =
-      customFields && customFields[fieldId] !== undefined
-        ? customFields[fieldId]
-        : appointment && appointment[fieldId] !== undefined
-          ? appointment[fieldId]
-          : "";
-
-    const handleFieldChange = onCustomFieldChange || onChange;
-
-    switch (field.type) {
-      case "text":
-        return (
-          <TextField
-            fullWidth
-            label={field.name}
-            name={fieldId}
-            value={fieldValue}
-            onChange={handleFieldChange}
-            required={field.required}
-          />
-        );
-
-      case "number":
-        return (
-          <TextField
-            fullWidth
-            label={field.name}
-            name={fieldId}
-            value={fieldValue}
-            onChange={handleFieldChange}
-            required={field.required}
-            type="number"
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        );
-
-      case "select":
-        return (
-          <FormControl fullWidth required={field.required}>
-            <InputLabel>{field.name}</InputLabel>
-            <Select
-              label={field.name}
-              name={fieldId}
-              value={fieldValue}
-              onChange={handleFieldChange}
-            >
-              {field.options?.map((option, index) => (
-                <MenuItem key={index} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        );
-
-      case "boolean":
-        return (
-          <FormControlLabel
-            control={
-              <Switch
-                checked={!!fieldValue}
-                onChange={(e) =>
-                  handleFieldChange({
-                    target: {
-                      name: fieldId,
-                      type: "checkbox",
-                      value: e.target.checked,
-                      checked: e.target.checked,
-                    },
-                  })
-                }
-                name={fieldId}
-              />
-            }
-            label={field.name}
-          />
-        );
-
-      default:
-        return null;
-    }
-  };
-
   const contactValue = appointment?.contact || null;
 
   return (
@@ -195,7 +101,7 @@ export const AppointmentForm = ({
             required
           >
             <MenuItem value="pending">Pendiente</MenuItem>
-            <MenuItem value="confirmed">Confirmada</MenuItem>
+            <MenuItem value="attended">Atendida</MenuItem>
             <MenuItem value="cancelled">Cancelada</MenuItem>
           </Select>
         </FormControl>
@@ -238,36 +144,6 @@ export const AppointmentForm = ({
           />
         </LocalizationProvider>
       </Grid>
-
-      {((formStructure?.custom_fields &&
-        formStructure.custom_fields.length > 0) ||
-        (isPreview &&
-          appointment?.fields &&
-          appointment.fields.length > 0)) && (
-        <>
-          <Grid item xs={12}>
-            <Divider sx={{ my: 1 }} />
-            <Typography variant="subtitle1" fontWeight="500" sx={{ my: 1 }}>
-              Campos personalizados
-            </Typography>
-            <Grid container spacing={2}>
-              {(isPreview
-                ? appointment?.fields
-                : formStructure?.custom_fields
-              )?.map((field) => (
-                <Grid
-                  item
-                  xs={12}
-                  md={field.type === "boolean" ? 12 : 6}
-                  key={field.id}
-                >
-                  {renderCustomField(field)}
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-        </>
-      )}
     </Grid>
   );
 };
@@ -275,22 +151,16 @@ export const AppointmentForm = ({
 AppointmentForm.propTypes = {
   appointment: PropTypes.object,
   onChange: PropTypes.func.isRequired,
-  customFields: PropTypes.object,
-  onCustomFieldChange: PropTypes.func,
-  formStructure: PropTypes.object,
   contacts: PropTypes.array,
   loading: PropTypes.bool,
   inputValue: PropTypes.string,
   onInputChange: PropTypes.func,
   readOnlyDates: PropTypes.bool,
-  isPreview: PropTypes.bool,
 };
 
 AppointmentForm.defaultProps = {
   appointment: {},
-  formStructure: { custom_fields: [] },
   contacts: [],
   loading: false,
   readOnlyDates: false,
-  isPreview: false,
 };

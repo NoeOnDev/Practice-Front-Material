@@ -13,7 +13,9 @@ import { useState, useEffect } from "react";
 import { getContactsAndSearch } from "../../services/contactService";
 import { useDebounce } from "../../hooks/useDebounce";
 import DeleteIcon from "@mui/icons-material/Delete";
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import { AppointmentForm } from "./AppointmentForm";
+import { AttendAppointmentModal } from "./AttendAppointmentModal";
 
 export const AppointmentFormModal = ({
   open,
@@ -24,11 +26,13 @@ export const AppointmentFormModal = ({
   onDelete,
   title,
   formStructure = { custom_fields: [] },
+  onAttendComplete,
 }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
+  const [attendModalOpen, setAttendModalOpen] = useState(false);
 
   useEffect(() => {
     if (open || autocompleteOpen) {
@@ -73,51 +77,89 @@ export const AppointmentFormModal = ({
     debouncedSearch(newInputValue);
   };
 
+  const handleAttendClick = () => {
+    setAttendModalOpen(true);
+  };
+
+  const handleAttendClose = () => {
+    setAttendModalOpen(false);
+  };
+
   if (!open) return null;
 
+  const showAttendButton = appointment.id && appointment.status === "pending";
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <form onSubmit={onSubmit}>
-        <DialogTitle
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h6">{title}</Typography>
-          <Box>
-            {appointment.id && (
-              <IconButton color="error" onClick={onDelete} size="small">
-                <DeleteIcon />
-              </IconButton>
-            )}
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <AppointmentForm
-            appointment={appointment}
-            onChange={onChange}
-            formStructure={formStructure}
-            contacts={searchResults}
-            loading={loading}
-            inputValue={inputValue}
-            onInputChange={handleInputChange}
-            readOnlyDates={true}
-            autocompleteOpen={autocompleteOpen}
-            onAutocompleteOpenChange={setAutocompleteOpen}
-          />
-        </DialogContent>
-        <DialogActions
-          sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}
-        >
-          <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained" color="primary">
-            Guardar
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+    <>
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <form onSubmit={onSubmit}>
+          <DialogTitle
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h6">{title}</Typography>
+            <Box>
+              {appointment.id && (
+                <>
+                  {showAttendButton && (
+                    <IconButton
+                      color="primary"
+                      onClick={handleAttendClick}
+                      size="small"
+                      sx={{ mr: 1 }}
+                      title="Atender cita"
+                    >
+                      <MedicalServicesIcon />
+                    </IconButton>
+                  )}
+                  <IconButton
+                    color="error"
+                    onClick={onDelete}
+                    size="small"
+                    title="Eliminar cita"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </>
+              )}
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <AppointmentForm
+              appointment={appointment}
+              onChange={onChange}
+              formStructure={formStructure}
+              contacts={searchResults}
+              loading={loading}
+              inputValue={inputValue}
+              onInputChange={handleInputChange}
+              readOnlyDates={true}
+              autocompleteOpen={autocompleteOpen}
+              onAutocompleteOpenChange={setAutocompleteOpen}
+            />
+          </DialogContent>
+          <DialogActions
+            sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}
+          >
+            <Button onClick={onClose}>Cancelar</Button>
+            <Button type="submit" variant="contained" color="primary">
+              Guardar
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      <AttendAppointmentModal
+        open={attendModalOpen}
+        appointment={appointment}
+        onClose={handleAttendClose}
+        formStructure={formStructure}
+        onAttendComplete={onAttendComplete}
+      />
+    </>
   );
 };
 
@@ -130,4 +172,5 @@ AppointmentFormModal.propTypes = {
   onDelete: PropTypes.func,
   title: PropTypes.string.isRequired,
   formStructure: PropTypes.object,
+  onAttendComplete: PropTypes.func,
 };

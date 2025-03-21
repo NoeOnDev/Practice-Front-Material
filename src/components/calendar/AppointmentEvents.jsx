@@ -251,6 +251,25 @@ export const useAppointmentEvents = () => {
     }
   };
 
+  const handleAttendComplete = async () => {
+    try {
+      const updatedAppointments = await getAppointments();
+      setEvents(updatedAppointments);
+      
+      if (selectedAppointment?.id) {
+        const refreshedAppointment = await getAppointment(selectedAppointment.id);
+        const appointmentWithDates = {
+          ...refreshedAppointment,
+          start: new Date(refreshedAppointment.start),
+          end: new Date(refreshedAppointment.end),
+        };
+        setSelectedAppointment(appointmentWithDates);
+      }
+    } catch (error) {
+      console.error("Error actualizando citas después de atender:", error);
+    }
+  };
+
   return {
     events,
     loading,
@@ -268,5 +287,6 @@ export const useAppointmentEvents = () => {
     handleDeleteAppointment,
     handleBusinessTypeSelection,
     renderEventContent,
+    handleAttendComplete,
   };
 };
