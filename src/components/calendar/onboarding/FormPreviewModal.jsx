@@ -48,18 +48,6 @@ export const FormPreviewModal = ({ open, onClose, businessType }) => {
       last_name: "Rodríguez",
       email: "carlos.rodriguez@example.com",
     },
-    {
-      id: 4,
-      first_name: "Ana",
-      last_name: "Martínez",
-      email: "ana.martinez@example.com",
-    },
-    {
-      id: 5,
-      first_name: "Luis",
-      last_name: "García",
-      email: "luis.garcia@example.com",
-    },
   ];
 
   useEffect(() => {
