@@ -13,7 +13,6 @@ import {
   MenuItem,
   FormControlLabel,
   Checkbox,
-  Grid,
   CircularProgress,
 } from "@mui/material";
 import PropTypes from "prop-types";
@@ -184,32 +183,6 @@ export const AttendAppointmentModal = ({
       <DialogContent>
         {appointment && (
           <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-              Detalles de la cita
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Typography variant="body2" color="text.secondary">
-                  Cliente
-                </Typography>
-                <Typography variant="body1">
-                  {appointment.contact
-                    ? `${appointment.contact.first_name} ${appointment.contact.last_name}`
-                    : "No especificado"}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography variant="body2" color="text.secondary">
-                  Título
-                </Typography>
-                <Typography variant="body1">{appointment.title}</Typography>
-              </Grid>
-            </Grid>
-
-            <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
-              Información adicional
-            </Typography>
-
             {formStructure.custom_fields.length > 0 ? (
               formStructure.custom_fields.map((field) =>
                 renderCustomField(field)

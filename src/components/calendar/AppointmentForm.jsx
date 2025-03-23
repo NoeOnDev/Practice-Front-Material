@@ -26,6 +26,8 @@ export const AppointmentForm = ({
   readOnlyDates,
 }) => {
   const contactValue = appointment?.contact || null;
+  const isReadOnly =
+    appointment?.status === "attended" || appointment?.status === "cancelled";
 
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -47,6 +49,7 @@ export const AppointmentForm = ({
               target: { name: "contact", value: newValue },
             });
           }}
+          disabled={isReadOnly}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -87,6 +90,7 @@ export const AppointmentForm = ({
           value={appointment?.title || ""}
           onChange={onChange}
           required
+          disabled={isReadOnly}
         />
       </Grid>
 
@@ -99,9 +103,15 @@ export const AppointmentForm = ({
             value={appointment?.status || "pending"}
             onChange={onChange}
             required
+            disabled={!appointment?.id || isReadOnly}
           >
             <MenuItem value="pending">Pendiente</MenuItem>
-            <MenuItem value="attended">Atendida</MenuItem>
+            <MenuItem
+              value="attended"
+              disabled={appointment?.status === "pending"}
+            >
+              Atendida
+            </MenuItem>
             <MenuItem value="cancelled">Cancelada</MenuItem>
           </Select>
         </FormControl>
@@ -112,15 +122,20 @@ export const AppointmentForm = ({
           <DateTimePicker
             label="Inicio"
             value={appointment?.start || null}
-            readOnly={readOnlyDates}
+            readOnly={readOnlyDates || isReadOnly}
             onChange={(newValue) => {
               !readOnlyDates &&
+                !isReadOnly &&
                 onChange({
                   target: { name: "start", value: newValue },
                 });
             }}
             slotProps={{
-              textField: { fullWidth: true, required: true },
+              textField: {
+                fullWidth: true,
+                required: true,
+                disabled: isReadOnly,
+              },
             }}
           />
         </LocalizationProvider>
@@ -131,15 +146,20 @@ export const AppointmentForm = ({
           <DateTimePicker
             label="Fin"
             value={appointment?.end || null}
-            readOnly={readOnlyDates}
+            readOnly={readOnlyDates || isReadOnly}
             onChange={(newValue) => {
               !readOnlyDates &&
+                !isReadOnly &&
                 onChange({
                   target: { name: "end", value: newValue },
                 });
             }}
             slotProps={{
-              textField: { fullWidth: true, required: true },
+              textField: {
+                fullWidth: true,
+                required: true,
+                disabled: isReadOnly,
+              },
             }}
           />
         </LocalizationProvider>

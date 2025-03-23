@@ -105,7 +105,7 @@ export const getAppointment = async (id) => {
       contact: appointment.contact,
       created_at: appointment.created_at,
       updated_at: appointment.updated_at,
-      field_values: appointment.field_values, // Asegurarse de incluir field_values
+      field_values: appointment.field_values,
       backgroundColor: getStatusColor(appointment.status),
       borderColor: getStatusColor(appointment.status),
     };

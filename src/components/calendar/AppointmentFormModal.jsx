@@ -144,10 +144,16 @@ export const AppointmentFormModal = ({
           <DialogActions
             sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}
           >
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button type="submit" variant="contained" color="primary">
-              Guardar
+            <Button onClick={onClose}>
+              {appointment.status === "attended" || appointment.status === "cancelled" 
+                ? "Cerrar" 
+                : "Cancelar"}
             </Button>
+            {appointment.status !== "attended" && appointment.status !== "cancelled" && (
+              <Button type="submit" variant="contained" color="primary">
+                Guardar
+              </Button>
+            )}
           </DialogActions>
         </form>
       </Dialog>

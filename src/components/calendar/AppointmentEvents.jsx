@@ -196,6 +196,8 @@ export const useAppointmentEvents = () => {
   };
 
   const renderEventContent = (eventInfo) => {
+    const contactName = eventInfo.event.extendedProps.contactName || "";
+
     if (
       eventInfo.view.type.includes("dayGrid") ||
       eventInfo.view.type.includes("multiMonth")
@@ -214,8 +216,10 @@ export const useAppointmentEvents = () => {
             fontSize: "0.85em",
           }}
         >
-          {eventInfo.timeText && <small>{eventInfo.timeText} </small>}
+          {contactName && <strong>{contactName}</strong>}
+          {contactName && eventInfo.event.title && <span> - </span>}
           <span>{eventInfo.event.title}</span>
+          {eventInfo.timeText && <small> ({eventInfo.timeText})</small>}
         </div>
       );
     }
@@ -226,15 +230,16 @@ export const useAppointmentEvents = () => {
           backgroundColor: eventInfo.backgroundColor,
           borderColor: eventInfo.borderColor,
           padding: "2px 5px",
-          borderRadius: "5px",
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: "5px",
+          borderRadius: "3px",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+          fontSize: "0.85em",
         }}
       >
+        {contactName && <strong>{contactName}</strong>}
+        <span> - </span>
         <b>{eventInfo.timeText}</b>
-        <p style={{ margin: 0 }}>{eventInfo.event.title}</p>
       </div>
     );
   };
@@ -255,9 +260,11 @@ export const useAppointmentEvents = () => {
     try {
       const updatedAppointments = await getAppointments();
       setEvents(updatedAppointments);
-      
+
       if (selectedAppointment?.id) {
-        const refreshedAppointment = await getAppointment(selectedAppointment.id);
+        const refreshedAppointment = await getAppointment(
+          selectedAppointment.id
+        );
         const appointmentWithDates = {
           ...refreshedAppointment,
           start: new Date(refreshedAppointment.start),

@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
@@ -62,10 +63,33 @@ DemoPageContent.propTypes = {
 
 export const DashboardLayoutNavigationLinks = (props) => {
   const { window } = props;
-
   const router = useDemoRouter("/calendar");
-
   const demoWindow = window !== undefined ? window() : undefined;
+
+  const [session, setSession] = React.useState({
+    user: {
+      name: "Usuario Ejemplo",
+      email: "usuario@ejemplo.com",
+      image: "https://i.pravatar.cc/300",
+    },
+  });
+
+  const authentication = React.useMemo(() => {
+    return {
+      signIn: () => {
+        setSession({
+          user: {
+            name: "Usuario Ejemplo",
+            email: "usuario@ejemplo.com",
+            image: "https://i.pravatar.cc/300",
+          },
+        });
+      },
+      signOut: () => {
+        setSession(null);
+      },
+    };
+  }, []);
 
   return (
     <AppProvider
@@ -89,6 +113,8 @@ export const DashboardLayoutNavigationLinks = (props) => {
       router={router}
       theme={demoTheme}
       window={demoWindow}
+      session={session}
+      authentication={authentication}
     >
       <DashboardLayout defaultSidebarCollapsed>
         <DemoPageContent pathname={router.pathname} />
