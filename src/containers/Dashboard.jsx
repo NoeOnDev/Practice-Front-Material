@@ -10,6 +10,9 @@ import { useDemoRouter } from "@toolpad/core/internal";
 import { Contacts } from "../pages/Contacts";
 import { AppointmentCalendar } from "../pages/AppointmentCalendar";
 import { CalendarIcon } from "@mui/x-date-pickers";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { CircularProgress } from "@mui/material";
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -65,31 +68,46 @@ export const DashboardLayoutNavigationLinks = (props) => {
   const { window } = props;
   const router = useDemoRouter("/calendar");
   const demoWindow = window !== undefined ? window() : undefined;
+  const navigate = useNavigate();
+  const { currentUser, loading, signIn, signOut } = useAuth();
 
-  const [session, setSession] = React.useState({
+  React.useEffect(() => {
+    if (!loading && !currentUser) {
+      navigate("/login");
+    }
+  }, [currentUser, loading, navigate]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const session = {
     user: {
-      name: "Usuario Ejemplo",
-      email: "usuario@ejemplo.com",
-      image: "https://i.pravatar.cc/300",
+      name: currentUser.name,
+      email: currentUser.email,
+      image: currentUser.image,
     },
-  });
+  };
 
-  const authentication = React.useMemo(() => {
-    return {
-      signIn: () => {
-        setSession({
-          user: {
-            name: "Usuario Ejemplo",
-            email: "usuario@ejemplo.com",
-            image: "https://i.pravatar.cc/300",
-          },
-        });
-      },
-      signOut: () => {
-        setSession(null);
-      },
-    };
-  }, []);
+  const authentication = {
+    signIn: signIn,
+    signOut: signOut,
+  };
 
   return (
     <AppProvider

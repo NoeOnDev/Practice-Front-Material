@@ -1,27 +1,24 @@
 import { useState } from "react";
-import { Box, Button, TextField, Typography, Link } from "@mui/material";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { loginUser } from "../services/authUser";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Link,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const { signIn, loading, error } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    const userData = { email, password };
-
-    try {
-      const response = await loginUser(userData);
-      localStorage.setItem("token", response.token);
-      alert("Login successful!");
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Login failed:", error);
-      alert("Login failed. Please try again.");
-    }
+    await signIn(email, password);
   };
 
   return (
@@ -41,6 +38,13 @@ export const Login = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Iniciar Sesión
       </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ width: "100%" }}>
+          {error}
+        </Alert>
+      )}
+
       <TextField
         label="Email"
         type="email"
@@ -48,6 +52,7 @@ export const Login = () => {
         onChange={(e) => setEmail(e.target.value)}
         fullWidth
         required
+        disabled={loading}
       />
       <TextField
         label="Password"
@@ -56,9 +61,16 @@ export const Login = () => {
         onChange={(e) => setPassword(e.target.value)}
         fullWidth
         required
+        disabled={loading}
       />
-      <Button type="submit" variant="contained" color="primary" fullWidth>
-        Iniciar Sesión
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        fullWidth
+        disabled={loading}
+      >
+        {loading ? <CircularProgress size={24} /> : "Iniciar Sesión"}
       </Button>
       <Link component={RouterLink} to="/register" sx={{ marginTop: 2 }}>
         ¿No tienes una cuenta? Regístrate
