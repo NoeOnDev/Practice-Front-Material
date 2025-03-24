@@ -234,7 +234,7 @@ export const useAppointmentEvents = () => {
           overflow: "hidden",
           whiteSpace: "nowrap",
           textOverflow: "ellipsis",
-          fontSize: "0.85em",
+          fontSize: "1em",
         }}
       >
         {contactName && <strong>{contactName}</strong>}

@@ -6,18 +6,12 @@ import {
   Button,
   Typography,
   Box,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Checkbox,
   CircularProgress,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import { attendAppointment } from "../../services/appointmentService";
+import { CustomFields } from "./CustomFields";
 
 export const AttendAppointmentModal = ({
   open,
@@ -104,77 +98,6 @@ export const AttendAppointmentModal = ({
     }
   };
 
-  const renderCustomField = (field) => {
-    const fieldId = `custom_${field.id}`;
-    const fieldValue = customFieldValues[fieldId];
-
-    switch (field.type) {
-      case "text":
-        return (
-          <TextField
-            key={field.id}
-            fullWidth
-            label={field.name}
-            name={fieldId}
-            value={fieldValue || ""}
-            onChange={handleFieldChange}
-            required={field.required}
-            margin="normal"
-          />
-        );
-      case "number":
-        return (
-          <TextField
-            key={field.id}
-            fullWidth
-            type="number"
-            label={field.name}
-            name={fieldId}
-            value={fieldValue || 0}
-            onChange={handleFieldChange}
-            required={field.required}
-            margin="normal"
-          />
-        );
-      case "select":
-        return (
-          <FormControl key={field.id} fullWidth margin="normal">
-            <InputLabel>{field.name}</InputLabel>
-            <Select
-              label={field.name}
-              name={fieldId}
-              value={fieldValue || ""}
-              onChange={handleFieldChange}
-              required={field.required}
-            >
-              {field.options.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        );
-      case "boolean":
-        return (
-          <FormControlLabel
-            key={field.id}
-            control={
-              <Checkbox
-                name={fieldId}
-                checked={!!fieldValue}
-                onChange={handleFieldChange}
-              />
-            }
-            label={field.name}
-            sx={{ my: 1 }}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -184,9 +107,13 @@ export const AttendAppointmentModal = ({
         {appointment && (
           <Box sx={{ mt: 2 }}>
             {formStructure.custom_fields.length > 0 ? (
-              formStructure.custom_fields.map((field) =>
-                renderCustomField(field)
-              )
+              <CustomFields
+                fields={formStructure.custom_fields}
+                values={customFieldValues}
+                onChange={handleFieldChange}
+                readOnly={false}
+                showTitle={false}
+              />
             ) : (
               <Typography variant="body2" color="text.secondary">
                 No hay campos personalizados configurados para este tipo de

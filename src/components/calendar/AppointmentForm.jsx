@@ -15,6 +15,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { es } from "date-fns/locale";
+import { CustomFields } from "./CustomFields";
 
 export const AppointmentForm = ({
   appointment,
@@ -28,6 +29,8 @@ export const AppointmentForm = ({
   const contactValue = appointment?.contact || null;
   const isReadOnly =
     appointment?.status === "attended" || appointment?.status === "cancelled";
+  const hasFieldValues =
+    appointment?.field_values && appointment.field_values.length > 0;
 
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -164,6 +167,20 @@ export const AppointmentForm = ({
           />
         </LocalizationProvider>
       </Grid>
+
+      <Grid item xs={12}>
+      {isReadOnly && hasFieldValues && (
+        <CustomFields
+          fields={appointment.field_values.map((fv) => fv.field)}
+          values={appointment.field_values.reduce((acc, fv) => {
+            acc[`custom_${fv.field.id}`] = fv.value;
+            return acc;
+          }, {})}
+          readOnly={true}
+          gridSize={{ xs: 12, sm: 12 }}
+        />
+      )}
+      </Grid>
     </Grid>
   );
 };
@@ -176,6 +193,7 @@ AppointmentForm.propTypes = {
   inputValue: PropTypes.string,
   onInputChange: PropTypes.func,
   readOnlyDates: PropTypes.bool,
+  formStructure: PropTypes.object,
 };
 
 AppointmentForm.defaultProps = {
@@ -183,4 +201,5 @@ AppointmentForm.defaultProps = {
   contacts: [],
   loading: false,
   readOnlyDates: false,
+  formStructure: { custom_fields: [] },
 };

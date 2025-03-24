@@ -115,14 +115,16 @@ export const AppointmentFormModal = ({
                       <MedicalServicesIcon />
                     </IconButton>
                   )}
-                  <IconButton
-                    color="error"
-                    onClick={onDelete}
-                    size="small"
-                    title="Eliminar cita"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  {appointment.status !== "attended" && appointment.status !== "cancelled" && (
+                    <IconButton
+                      color="error"
+                      onClick={onDelete}
+                      size="small"
+                      title="Eliminar cita"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
                 </>
               )}
             </Box>

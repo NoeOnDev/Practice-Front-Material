@@ -334,7 +334,14 @@ export const AppointmentCalendar = () => {
         onSubmit={handleModalSubmit}
         onChange={handleModalChange}
         onDelete={handleDeleteAppointment}
-        title={selectedAppointment?.id ? "Editar Cita" : "Nueva Cita"}
+        title={
+          selectedAppointment?.status === "attended" ||
+          selectedAppointment?.status === "cancelled"
+            ? "Detalles de la Cita"
+            : selectedAppointment?.id
+              ? "Editar Cita"
+              : "Nueva Cita"
+        }
         formStructure={formStructure}
         onAttendComplete={handleAttendComplete}
       />
