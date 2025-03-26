@@ -239,7 +239,7 @@ export const useAppointmentEvents = () => {
       >
         {contactName && <strong>{contactName}</strong>}
         <span> - </span>
-        <b>{eventInfo.timeText}</b>
+        <span>{eventInfo.event.title}</span>
       </div>
     );
   };

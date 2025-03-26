@@ -291,10 +291,9 @@ export const AppointmentCalendar = () => {
             }}
             editable={true}
             selectable={true}
-            // selectMirror={true}
-            // selectOverlap={false}
-            /*
-            selectAllow={function (selectInfo) {
+            selectMirror={true}
+            selectOverlap={false}
+            /* selectAllow={function (selectInfo) {
               return (
                 selectInfo.start.getTime() >= new Date().getTime() &&
                 selectInfo.end.getTime() >= selectInfo.start.getTime()
@@ -306,8 +305,8 @@ export const AppointmentCalendar = () => {
               daysOfWeek: calendarConfig.businessHours.daysOfWeek,
               startTime: calendarConfig.businessHours.startTime,
               endTime: calendarConfig.businessHours.endTime,
-            }}
-              */
+            }} */
+            
             // selectConstraint="businessHours"
             handleWindowResize={true}
             events={events}

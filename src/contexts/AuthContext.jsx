@@ -22,10 +22,13 @@ export const AuthProvider = ({ children }) => {
       try {
         const userData = await getCurrentUser();
         setCurrentUser({
-          name: userData.user.name,
+          displayName: userData.user.displayName,
           email: userData.user.email,
-          image: userData.user.profile_image_url || "https://i.pravatar.cc/300",
+          photoURL: userData.user.photoURL,
           id: userData.user.id,
+          emailVerified: userData.user.emailVerified,
+          hasCustomFields: userData.user.hasCustomFields,
+          businessTypeId: userData.user.businessTypeId
         });
       } catch (error) {
         console.error("Error verificando estado de autenticación:", error);
@@ -48,10 +51,13 @@ export const AuthProvider = ({ children }) => {
 
       const userData = await getCurrentUser();
       setCurrentUser({
-        name: userData.user.name,
+        displayName: userData.user.displayName,
         email: userData.user.email,
-        image: userData.user.profile_image_url || "https://i.pravatar.cc/300",
+        photoURL: userData.user.photoURL,
         id: userData.user.id,
+        emailVerified: userData.user.emailVerified,
+        hasCustomFields: userData.user.hasCustomFields,
+        businessTypeId: userData.user.businessTypeId
       });
 
       navigate("/dashboard");

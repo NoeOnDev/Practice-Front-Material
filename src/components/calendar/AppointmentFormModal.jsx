@@ -9,7 +9,7 @@ import {
   IconButton,
 } from "@mui/material";
 import PropTypes from "prop-types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getContactsAndSearch } from "../../services/contactService";
 import { useDebounce } from "../../hooks/useDebounce";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -33,6 +33,13 @@ export const AppointmentFormModal = ({
   const [inputValue, setInputValue] = useState("");
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
   const [attendModalOpen, setAttendModalOpen] = useState(false);
+  const originalStatus = useRef(appointment.status);
+
+  useEffect(() => {
+    if (open && appointment) {
+      originalStatus.current = appointment.status;
+    }
+  }, [open, appointment]);
 
   useEffect(() => {
     if (open || autocompleteOpen) {
@@ -89,6 +96,10 @@ export const AppointmentFormModal = ({
 
   const showAttendButton = appointment.id && appointment.status === "pending";
 
+  const isReadOnly =
+    originalStatus.current === "attended" ||
+    originalStatus.current === "cancelled";
+
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -115,7 +126,7 @@ export const AppointmentFormModal = ({
                       <MedicalServicesIcon />
                     </IconButton>
                   )}
-                  {appointment.status !== "attended" && appointment.status !== "cancelled" && (
+                  {!isReadOnly && (
                     <IconButton
                       color="error"
                       onClick={onDelete}
@@ -147,11 +158,9 @@ export const AppointmentFormModal = ({
             sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}
           >
             <Button onClick={onClose}>
-              {appointment.status === "attended" || appointment.status === "cancelled" 
-                ? "Cerrar" 
-                : "Cancelar"}
+              {isReadOnly ? "Cerrar" : "Cancelar"}
             </Button>
-            {appointment.status !== "attended" && appointment.status !== "cancelled" && (
+            {!isReadOnly && (
               <Button type="submit" variant="contained" color="primary">
                 Guardar
               </Button>

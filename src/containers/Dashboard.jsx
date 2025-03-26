@@ -31,15 +31,17 @@ const demoTheme = createTheme({
 });
 
 function DemoPageContent({ pathname }) {
+  const basePath = pathname.split("/")[1];
+
   let content;
-  switch (pathname) {
-    case "/calendar":
+
+  switch (basePath) {
+    case "calendar":
       content = <AppointmentCalendar />;
       break;
-    case "/contacts":
+    case "contacts":
       content = <Contacts />;
       break;
-
     default:
       content = <Typography>Page not found</Typography>;
   }
@@ -98,9 +100,9 @@ export const DashboardLayoutNavigationLinks = (props) => {
 
   const session = {
     user: {
-      name: currentUser.name,
+      name: currentUser.displayName,
       email: currentUser.email,
-      image: currentUser.image,
+      image: currentUser.photoURL,
     },
   };
 
@@ -133,6 +135,10 @@ export const DashboardLayoutNavigationLinks = (props) => {
       window={demoWindow}
       session={session}
       authentication={authentication}
+      localeText={{
+        accountSignInLabel: "Iniciar sesión",
+        accountSignOutLabel: "Cerrar sesión",
+      }}
     >
       <DashboardLayout defaultSidebarCollapsed>
         <DemoPageContent pathname={router.pathname} />
