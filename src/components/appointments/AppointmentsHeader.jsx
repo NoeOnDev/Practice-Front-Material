@@ -3,7 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 
-export const ContactsHeader = ({
+export const AppointmentsHeader = ({
   selectedCount,
   onMultipleDelete,
   onCreateNew,
@@ -21,25 +21,25 @@ export const ContactsHeader = ({
         mb: 2,
       }}
     >
-      <Typography 
-        variant="h5" 
-        component="h1" 
-        sx={{ 
+      <Typography
+        variant="h5"
+        component="h1"
+        sx={{
           fontWeight: 500,
           order: { xs: 1, sm: 1 },
-          alignSelf: { xs: "flex-start", sm: "center" }
+          alignSelf: { xs: "flex-start", sm: "center" },
         }}
       >
-        Contactos
+        Citas
       </Typography>
-      
-      <Box 
-        sx={{ 
-          display: "flex", 
+
+      <Box
+        sx={{
+          display: "flex",
           gap: 2,
           order: { xs: 2, sm: 2 },
           width: { xs: "100%", sm: "auto" },
-          justifyContent: { xs: "space-between", sm: "flex-end" }
+          justifyContent: { xs: "space-between", sm: "flex-end" },
         }}
       >
         <Button
@@ -52,7 +52,7 @@ export const ContactsHeader = ({
           }}
           disabled={selectedCount === 0}
         >
-          Eliminar ({selectedCount}) contactos
+          Eliminar ({selectedCount}) citas
         </Button>
         <Button
           variant="contained"
@@ -68,14 +68,14 @@ export const ContactsHeader = ({
             px: { xs: 2 },
           }}
         >
-          Nuevo Contacto
+          Nueva Cita
         </Button>
       </Box>
     </Box>
   );
 };
 
-ContactsHeader.propTypes = {
+AppointmentsHeader.propTypes = {
   selectedCount: PropTypes.number.isRequired,
   onMultipleDelete: PropTypes.func.isRequired,
   onCreateNew: PropTypes.func.isRequired,

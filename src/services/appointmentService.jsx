@@ -6,11 +6,16 @@ export const createAppointment = async (appointmentData) => {
   try {
     const token = localStorage.getItem("token");
 
+    const formatDateToUTC = (dateValue) => {
+      const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+      return date.toISOString().slice(0, 19).replace("T", " ");
+    };
+
     const formattedData = {
       contact_id: appointmentData.contact.id,
       title: appointmentData.title,
-      start: appointmentData.start.toISOString().slice(0, 19).replace("T", " "),
-      end: appointmentData.end.toISOString().slice(0, 19).replace("T", " "),
+      start: formatDateToUTC(appointmentData.start),
+      end: formatDateToUTC(appointmentData.end),
       status: appointmentData.status,
     };
 
@@ -128,11 +133,25 @@ export const updateAppointment = async (id, appointmentData) => {
   try {
     const token = localStorage.getItem("token");
 
+    const formatDateToUTC = (dateValue) => {
+      let date;
+      
+      if (dateValue instanceof Date) {
+        date = dateValue;
+      } else if (typeof dateValue === 'string') {
+        date = new Date(dateValue);
+      } else {
+        date = new Date(dateValue);
+      }
+      
+      return date.toISOString().slice(0, 19).replace("T", " ");
+    };
+
     const formattedData = {
       contact_id: appointmentData.contact.id,
       title: appointmentData.title,
-      start: appointmentData.start.toISOString().slice(0, 19).replace("T", " "),
-      end: appointmentData.end.toISOString().slice(0, 19).replace("T", " "),
+      start: formatDateToUTC(appointmentData.start),
+      end: formatDateToUTC(appointmentData.end),
       status: appointmentData.status,
     };
 
@@ -147,6 +166,8 @@ export const updateAppointment = async (id, appointmentData) => {
     if (Object.keys(fieldValues).length > 0) {
       formattedData.field_values = fieldValues;
     }
+
+    console.log("Enviando al servidor (UTC):", formattedData);
 
     const response = await axios.patch(
       `${API_URL}/appointments/${id}`,
@@ -207,6 +228,24 @@ export const attendAppointment = async (id, attendData) => {
     return response.data;
   } catch (error) {
     console.error("Error atendiendo cita:", error);
+    throw error;
+  }
+};
+
+export const getAppointmentsRaw = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(`${API_URL}/appointments`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
     throw error;
   }
 };

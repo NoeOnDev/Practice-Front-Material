@@ -106,7 +106,7 @@ export const AppointmentForm = ({
             value={appointment?.status || "pending"}
             onChange={onChange}
             required
-            disabled={!appointment?.id || isReadOnly}
+            disabled={true}
           >
             <MenuItem value="pending">Pendiente</MenuItem>
             <MenuItem
@@ -169,17 +169,17 @@ export const AppointmentForm = ({
       </Grid>
 
       <Grid item xs={12}>
-      {isReadOnly && hasFieldValues && (
-        <CustomFields
-          fields={appointment.field_values.map((fv) => fv.field)}
-          values={appointment.field_values.reduce((acc, fv) => {
-            acc[`custom_${fv.field.id}`] = fv.value;
-            return acc;
-          }, {})}
-          readOnly={true}
-          gridSize={{ xs: 12, sm: 12 }}
-        />
-      )}
+        {isReadOnly && hasFieldValues && (
+          <CustomFields
+            fields={appointment.field_values.map((fv) => fv.field)}
+            values={appointment.field_values.reduce((acc, fv) => {
+              acc[`custom_${fv.field.id}`] = fv.value;
+              return acc;
+            }, {})}
+            readOnly={true}
+            gridSize={{ xs: 12, sm: 12 }}
+          />
+        )}
       </Grid>
     </Grid>
   );

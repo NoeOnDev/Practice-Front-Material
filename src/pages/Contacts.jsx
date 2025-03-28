@@ -17,7 +17,6 @@ import {
   getContactsAndSearch,
 } from "../services/contactService";
 import { ContactsTable } from "../components/contacts/ContactsTable";
-import { ViewContactModal } from "../components/contacts/ViewContactModal";
 import { ContactFormModal } from "../components/contacts/ContactFormModal";
 import AddIcon from "@mui/icons-material/Add";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
@@ -26,8 +25,6 @@ import { useDebounce } from "../hooks/useDebounce";
 import { ContactsHeader } from "../components/contacts/ContactsHeader";
 
 export const Contacts = () => {
-  const [open, setOpen] = useState(false);
-  const [selectedContact, setSelectedContact] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
   const [contactos, setContactos] = useState([]);
@@ -54,6 +51,10 @@ export const Contacts = () => {
   const [selected, setSelected] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [readOnly, setReadOnly] = useState(true);
+  const [originalContact, setOriginalContact] = useState(null);
+  const [openMultipleDelete, setOpenMultipleDelete] = useState(false);
+  const [multipleDeleteIds, setMultipleDeleteIds] = useState([]);
 
   const handleSearch = useDebounce(
     useCallback(
@@ -113,13 +114,13 @@ export const Contacts = () => {
   };
 
   const handleOpenModal = (contact) => {
-    setSelectedContact(contact);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedContact(null);
+    setEditingContact({
+      ...contact,
+      fechaNacimiento: apiDateToDate(contact.birth_date),
+      estado: contact.state,
+    });
+    setReadOnly(true);
+    setOpenEdit(true);
   };
 
   const handleOpenEditModal = (contact) => {
@@ -194,6 +195,7 @@ export const Contacts = () => {
 
       alert("Contacto eliminado exitosamente");
       handleCloseDeleteDialog();
+      handleCloseEdit();
     } catch (error) {
       console.error("Error al eliminar el contacto:", error);
       alert("Error al eliminar el contacto");
@@ -285,6 +287,62 @@ export const Contacts = () => {
     }
   };
 
+  const handleToggleEditMode = () => {
+    setOriginalContact(JSON.parse(JSON.stringify(editingContact)));
+    setReadOnly(false);
+  };
+
+  const hasContactChanged = () => {
+    if (!originalContact || !editingContact) return false;
+    
+    return (
+      originalContact.first_name !== editingContact.first_name ||
+      originalContact.last_name !== editingContact.last_name ||
+      originalContact.middle_name !== editingContact.middle_name ||
+      originalContact.email !== editingContact.email ||
+      originalContact.phone_code !== editingContact.phone_code ||
+      originalContact.phone_number !== editingContact.phone_number ||
+      originalContact.estado !== editingContact.estado ||
+      originalContact.address !== editingContact.address ||
+      originalContact.notes !== editingContact.notes ||
+      JSON.stringify(originalContact.fechaNacimiento) !== 
+      JSON.stringify(editingContact.fechaNacimiento)
+    );
+  };
+
+  const handleOpenMultipleDelete = (selectedIds) => {
+    setMultipleDeleteIds(selectedIds);
+    setOpenMultipleDelete(true);
+  };
+
+  const handleCloseMultipleDelete = () => {
+    setOpenMultipleDelete(false);
+    setMultipleDeleteIds([]);
+  };
+
+  const handleConfirmMultipleDelete = async () => {
+    try {
+      for (const id of multipleDeleteIds) {
+        await deleteContact(id);
+      }
+
+      const updatedContacts = await getContactsAndSearch(
+        searchQuery,
+        page,
+        rowsPerPage
+      );
+      setContactos(updatedContacts.data);
+      setTotalRows(updatedContacts.total);
+      setSelected([]);
+
+      alert("Contactos eliminados exitosamente");
+      handleCloseMultipleDelete();
+    } catch (error) {
+      console.error("Error al eliminar contactos:", error);
+      alert("Error al eliminar los contactos");
+    }
+  };
+
   if (initialLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
@@ -306,7 +364,7 @@ export const Contacts = () => {
       {contactos.length > 0 && (
         <ContactsHeader
           selectedCount={selected.length}
-          onMultipleDelete={() => handleMultipleDelete(selected)}
+          onMultipleDelete={() => handleOpenMultipleDelete(selected)}
           onCreateNew={handleOpenCreateModal}
           setSelected={setSelected}
         />
@@ -410,18 +468,10 @@ export const Contacts = () => {
             onSearchChange={(value) => setSearchQuery(value)}
             selected={selected}
             setSelected={setSelected}
-            loading={searchLoading} // Agregar esta prop
+            loading={searchLoading}
           />
         )}
       </Box>
-
-      <ViewContactModal
-        open={open}
-        contact={selectedContact}
-        onClose={handleClose}
-        onEdit={handleOpenEditModal}
-        onDelete={handleOpenDeleteDialog}
-      />
 
       <ContactFormModal
         open={openCreate}
@@ -438,7 +488,12 @@ export const Contacts = () => {
         onClose={handleCloseEdit}
         onSubmit={handleEditSubmit}
         onChange={handleEditChange}
-        title="Editar Contacto"
+        title={readOnly ? "Detalles del Contacto" : "Editar Contacto"}
+        readOnly={readOnly}
+        onEdit={handleToggleEditMode}
+        onDelete={() => handleOpenDeleteDialog(editingContact)}
+        showActionButtons={true}
+        saveDisabled={!readOnly && !hasContactChanged()}
       />
 
       <Dialog open={openDelete} onClose={handleCloseDeleteDialog}>
@@ -459,6 +514,28 @@ export const Contacts = () => {
           <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
           <Button
             onClick={handleDeleteContact}
+            color="error"
+            variant="contained"
+          >
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openMultipleDelete} onClose={handleCloseMultipleDelete}>
+        <DialogTitle>Confirmar Eliminación Múltiple</DialogTitle>
+        <DialogContent>
+          <Typography>
+            ¿Estás seguro que deseas eliminar {multipleDeleteIds.length} contactos?
+          </Typography>
+          <Typography color="error" sx={{ mt: 1 }}>
+            Esta acción no se puede deshacer.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseMultipleDelete}>Cancelar</Button>
+          <Button
+            onClick={handleConfirmMultipleDelete}
             color="error"
             variant="contained"
           >

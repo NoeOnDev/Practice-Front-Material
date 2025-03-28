@@ -165,18 +165,56 @@ export const useAppointmentEvents = () => {
     }));
   };
 
-  const handleEventChange = (changeInfo) => {
-    setEvents(
-      events.map((event) =>
-        event.id === changeInfo.event.id
-          ? {
-              ...event,
-              start: changeInfo.event.startStr,
-              end: changeInfo.event.endStr,
-            }
-          : event
-      )
-    );
+  const handleEventChange = async (changeInfo) => {
+    try {
+      const originalAppointment = await getAppointment(changeInfo.event.id);
+
+      if (!originalAppointment) {
+        throw new Error(
+          "No se pudo obtener la información original de la cita"
+        );
+      }
+
+      setEvents(
+        events.map((event) =>
+          event.id === changeInfo.event.id
+            ? {
+                ...event,
+                start: changeInfo.event.startStr,
+                end: changeInfo.event.endStr,
+              }
+            : event
+        )
+      );
+
+      const updatedAppointment = {
+        ...originalAppointment,
+        start: changeInfo.event.startStr,
+        end: changeInfo.event.endStr,
+      };
+
+      console.log("Datos de actualización:", updatedAppointment);
+
+      await updateAppointment(changeInfo.event.id, updatedAppointment);
+
+      console.log("Cita actualizada correctamente");
+    } catch (error) {
+      console.error("Error al actualizar la cita:", error);
+
+      if (error.response) {
+        console.error("Respuesta del servidor:", error.response.data);
+        console.error("Código de estado:", error.response.status);
+      }
+
+      try {
+        const updatedAppointments = await getAppointments();
+        setEvents(updatedAppointments);
+      } catch (fetchError) {
+        console.error("Error al restaurar el calendario:", fetchError);
+      }
+
+      alert("No se pudo actualizar la cita. Se ha restaurado el calendario.");
+    }
   };
 
   const handleDeleteAppointment = async () => {
@@ -238,8 +276,9 @@ export const useAppointmentEvents = () => {
         }}
       >
         {contactName && <strong>{contactName}</strong>}
-        <span> - </span>
+        {contactName && eventInfo.event.title && <span> - </span>}
         <span>{eventInfo.event.title}</span>
+        {eventInfo.timeText && <small> ({eventInfo.timeText})</small>}
       </div>
     );
   };
@@ -277,6 +316,39 @@ export const useAppointmentEvents = () => {
     }
   };
 
+  const handleNewAppointment = () => {
+    const startDate = new Date();
+    
+    const endDate = new Date(startDate);
+    endDate.setMinutes(endDate.getMinutes() + 30);
+    
+    const customFieldsValues = {};
+    formStructure.custom_fields.forEach((field) => {
+      if (field.type === "boolean") {
+        customFieldsValues[`custom_${field.id}`] = false;
+      } else if (
+        field.type === "select" &&
+        field.options &&
+        field.options.length > 0
+      ) {
+        customFieldsValues[`custom_${field.id}`] = field.options[0];
+      } else {
+        customFieldsValues[`custom_${field.id}`] = "";
+      }
+    });
+  
+    setSelectedAppointment({
+      title: "",
+      contact: null,
+      start: startDate,
+      end: endDate,
+      status: "pending",
+      ...customFieldsValues,
+    });
+    
+    setOpenModal(true);
+  };
+
   return {
     events,
     loading,
@@ -295,5 +367,6 @@ export const useAppointmentEvents = () => {
     handleBusinessTypeSelection,
     renderEventContent,
     handleAttendComplete,
+    handleNewAppointment,
   };
 };

@@ -74,7 +74,6 @@ export const FormPreviewStep = ({ selectedType }) => {
           </Typography>
         </Box>
 
-        {/* Campos personalizados */}
         {selectedType?.fields && selectedType.fields.length > 0 ? (
           <>
             <Divider sx={{ my: 2 }} />

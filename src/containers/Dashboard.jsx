@@ -4,12 +4,14 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
+import EventIcon from "@mui/icons-material/Event";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
 import { Contacts } from "../pages/Contacts";
 import { AppointmentCalendar } from "../pages/AppointmentCalendar";
-import { CalendarIcon } from "@mui/x-date-pickers";
+import { Appointments } from "../pages/Appointments";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { CircularProgress } from "@mui/material";
@@ -41,6 +43,9 @@ function DemoPageContent({ pathname }) {
       break;
     case "contacts":
       content = <Contacts />;
+      break;
+    case "appointments":
+      content = <Appointments />;
       break;
     default:
       content = <Typography>Page not found</Typography>;
@@ -117,7 +122,12 @@ export const DashboardLayoutNavigationLinks = (props) => {
         {
           segment: "calendar",
           title: "Agenda",
-          icon: <CalendarIcon />,
+          icon: <EventIcon />,
+        },
+        {
+          segment: "appointments",
+          title: "Citas",
+          icon: <ScheduleIcon />,
         },
         {
           segment: "contacts",

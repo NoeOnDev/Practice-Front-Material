@@ -14,8 +14,10 @@ import { getContactsAndSearch } from "../../services/contactService";
 import { useDebounce } from "../../hooks/useDebounce";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import CancelIcon from "@mui/icons-material/Cancel";
 import { AppointmentForm } from "./AppointmentForm";
 import { AttendAppointmentModal } from "./AttendAppointmentModal";
+import { updateAppointment } from "../../services/appointmentService";
 
 export const AppointmentFormModal = ({
   open,
@@ -34,10 +36,12 @@ export const AppointmentFormModal = ({
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
   const [attendModalOpen, setAttendModalOpen] = useState(false);
   const originalStatus = useRef(appointment.status);
+  const [appointmentData, setAppointmentData] = useState(appointment);
 
   useEffect(() => {
     if (open && appointment) {
       originalStatus.current = appointment.status;
+      setAppointmentData(appointment);
     }
   }, [open, appointment]);
 
@@ -85,16 +89,50 @@ export const AppointmentFormModal = ({
   };
 
   const handleAttendClick = () => {
-    setAttendModalOpen(true);
+    onClose();
+    setTimeout(() => {
+      setAttendModalOpen(true);
+    }, 100);
+  };
+
+  const handleCancelClick = async () => {
+    if (!appointment.id) return;
+
+    if (confirm("¿Estás seguro de cancelar esta cita?")) {
+      try {
+        const updatedAppointment = {
+          ...appointment,
+          status: "cancelled",
+        };
+
+        await updateAppointment(appointment.id, updatedAppointment);
+
+        onClose();
+        if (onAttendComplete) {
+          onAttendComplete();
+        }
+      } catch (error) {
+        console.error("Error al cancelar la cita:", error);
+        alert("Error al cancelar la cita. Por favor intente nuevamente.");
+      }
+    }
   };
 
   const handleAttendClose = () => {
     setAttendModalOpen(false);
   };
 
-  if (!open) return null;
+  const handleAttendCompleteWrapper = () => {
+    setAttendModalOpen(false);
+    if (onAttendComplete) {
+      onAttendComplete();
+    }
+  };
+
+  if (!open && !attendModalOpen) return null;
 
   const showAttendButton = appointment.id && appointment.status === "pending";
+  const showCancelButton = showAttendButton;
 
   const isReadOnly =
     originalStatus.current === "attended" ||
@@ -102,31 +140,42 @@ export const AppointmentFormModal = ({
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <form onSubmit={onSubmit}>
-          <DialogTitle
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="h6">{title}</Typography>
-            <Box>
-              {appointment.id && (
-                <>
-                  {showAttendButton && (
-                    <IconButton
-                      color="primary"
-                      onClick={handleAttendClick}
-                      size="small"
-                      sx={{ mr: 1 }}
-                      title="Atender cita"
-                    >
-                      <MedicalServicesIcon />
-                    </IconButton>
-                  )}
-                  {!isReadOnly && (
+      {open && (
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+          <form onSubmit={onSubmit}>
+            <DialogTitle
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography variant="h6">{title}</Typography>
+              <Box>
+                {appointment.id && (
+                  <>
+                    {showCancelButton && (
+                      <IconButton
+                        color="error"
+                        onClick={handleCancelClick}
+                        size="small"
+                        sx={{ mr: 1 }}
+                        title="Cancelar cita"
+                      >
+                        <CancelIcon />
+                      </IconButton>
+                    )}
+                    {showAttendButton && (
+                      <IconButton
+                        color="primary"
+                        onClick={handleAttendClick}
+                        size="small"
+                        sx={{ mr: 1 }}
+                        title="Atender cita"
+                      >
+                        <MedicalServicesIcon />
+                      </IconButton>
+                    )}
                     <IconButton
                       color="error"
                       onClick={onDelete}
@@ -135,46 +184,46 @@ export const AppointmentFormModal = ({
                     >
                       <DeleteIcon />
                     </IconButton>
-                  )}
-                </>
-              )}
-            </Box>
-          </DialogTitle>
-          <DialogContent>
-            <AppointmentForm
-              appointment={appointment}
-              onChange={onChange}
-              formStructure={formStructure}
-              contacts={searchResults}
-              loading={loading}
-              inputValue={inputValue}
-              onInputChange={handleInputChange}
-              readOnlyDates={true}
-              autocompleteOpen={autocompleteOpen}
-              onAutocompleteOpenChange={setAutocompleteOpen}
-            />
-          </DialogContent>
-          <DialogActions
-            sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}
-          >
-            <Button onClick={onClose}>
-              {isReadOnly ? "Cerrar" : "Cancelar"}
-            </Button>
-            {!isReadOnly && (
-              <Button type="submit" variant="contained" color="primary">
-                Guardar
+                  </>
+                )}
+              </Box>
+            </DialogTitle>
+            <DialogContent>
+              <AppointmentForm
+                appointment={appointment}
+                onChange={onChange}
+                formStructure={formStructure}
+                contacts={searchResults}
+                loading={loading}
+                inputValue={inputValue}
+                onInputChange={handleInputChange}
+                readOnlyDates={false}
+                autocompleteOpen={autocompleteOpen}
+                onAutocompleteOpenChange={setAutocompleteOpen}
+              />
+            </DialogContent>
+            <DialogActions
+              sx={{ display: "flex", justifyContent: "flex-end", px: 2 }}
+            >
+              <Button onClick={onClose}>
+                {isReadOnly ? "Cerrar" : "Cancelar"}
               </Button>
-            )}
-          </DialogActions>
-        </form>
-      </Dialog>
+              {!isReadOnly && (
+                <Button type="submit" variant="contained" color="primary">
+                  Guardar
+                </Button>
+              )}
+            </DialogActions>
+          </form>
+        </Dialog>
+      )}
 
       <AttendAppointmentModal
         open={attendModalOpen}
-        appointment={appointment}
+        appointment={appointmentData}
         onClose={handleAttendClose}
         formStructure={formStructure}
-        onAttendComplete={onAttendComplete}
+        onAttendComplete={handleAttendCompleteWrapper}
       />
     </>
   );

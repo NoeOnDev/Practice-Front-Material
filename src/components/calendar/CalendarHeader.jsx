@@ -8,7 +8,13 @@ import {
   Stack,
   IconButton,
 } from "@mui/material";
-import { ChevronLeft, ChevronRight, Today, Settings } from "@mui/icons-material";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Today, 
+  Settings,
+  Add 
+} from "@mui/icons-material";
 import PropTypes from "prop-types";
 
 export const CalendarHeader = ({
@@ -19,7 +25,12 @@ export const CalendarHeader = ({
   onNext,
   onToday,
   onConfigClick,
+  onNewAppointment,
 }) => {
+  const showNewAppointmentButton = 
+    viewMode === "multiMonthYear" || 
+    viewMode === "dayGridMonth";
+
   return (
     <Box
       sx={{
@@ -57,6 +68,23 @@ export const CalendarHeader = ({
         </Typography>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {showNewAppointmentButton && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Add />}
+              onClick={onNewAppointment}
+              size="small"
+              sx={{
+                mr: 1,
+                height: { xs: 35, sm: 40 },
+                textTransform: "none",
+                fontSize: { xs: "0.875rem", sm: "0.95rem" },
+              }}
+            >
+              Agendar
+            </Button>
+          )}
           <IconButton
             onClick={onConfigClick}
             size="small"
@@ -159,4 +187,5 @@ CalendarHeader.propTypes = {
   onNext: PropTypes.func.isRequired,
   onToday: PropTypes.func.isRequired,
   onConfigClick: PropTypes.func.isRequired,
+  onNewAppointment: PropTypes.func,
 };

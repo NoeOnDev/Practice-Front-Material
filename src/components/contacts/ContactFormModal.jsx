@@ -9,6 +9,7 @@ import {
   Autocomplete,
   Typography,
   Box,
+  IconButton,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -17,6 +18,8 @@ import { es } from "date-fns/locale";
 import PropTypes from "prop-types";
 import { COUNTRY_CODES } from "./countryCodes";
 import { ESTADOS_MEXICO } from "./estadosMexico";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export const ContactFormModal = ({
   open,
@@ -25,13 +28,38 @@ export const ContactFormModal = ({
   onSubmit,
   onChange,
   title,
+  readOnly = false,
+  onEdit,
+  onDelete,
+  showActionButtons = false,
+  saveDisabled = false,
 }) => {
   if (!open) return null;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={onSubmit}>
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="inherit">{title}</Typography>
+          {showActionButtons && readOnly && (
+            <Box>
+              <IconButton
+                color="primary"
+                onClick={onEdit}
+                size="small"
+              >
+                <EditIcon />
+              </IconButton>
+              <IconButton
+                color="error"
+                onClick={onDelete}
+                size="small"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          )}
+        </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} md={4}>
@@ -42,6 +70,7 @@ export const ContactFormModal = ({
                 value={contact.first_name}
                 onChange={onChange}
                 required
+                disabled={readOnly}
               />
             </Grid>
             <Grid item xs={12} md={4}>
@@ -52,6 +81,7 @@ export const ContactFormModal = ({
                 value={contact.last_name}
                 onChange={onChange}
                 required
+                disabled={readOnly}
               />
             </Grid>
             <Grid item xs={12} md={4}>
@@ -61,6 +91,7 @@ export const ContactFormModal = ({
                 name="middle_name"
                 value={contact.middle_name}
                 onChange={onChange}
+                disabled={readOnly}
               />
             </Grid>
             <Grid item xs={12}>
@@ -72,6 +103,7 @@ export const ContactFormModal = ({
                 value={contact.email}
                 onChange={onChange}
                 required
+                disabled={readOnly}
               />
             </Grid>
             <Grid item xs={12} md={4}>
@@ -92,6 +124,7 @@ export const ContactFormModal = ({
                 }}
                 value={COUNTRY_CODES.find((c) => c.code === contact.phone_code) || null}
                 onChange={(event, newValue) => {
+                  if (readOnly) return;
                   onChange({
                     target: {
                       name: "phone_code",
@@ -99,6 +132,7 @@ export const ContactFormModal = ({
                     },
                   });
                 }}
+                disabled={readOnly}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -106,6 +140,7 @@ export const ContactFormModal = ({
                     required
                     fullWidth
                     placeholder="Buscar por código o país..."
+                    disabled={readOnly}
                   />
                 )}
                 renderOption={(props, option) => (
@@ -130,6 +165,7 @@ export const ContactFormModal = ({
                 value={contact.phone_number}
                 onChange={onChange}
                 required
+                disabled={readOnly}
               />
             </Grid>
             <Grid item xs={12} md={5}>
@@ -137,7 +173,9 @@ export const ContactFormModal = ({
                 fullWidth
                 options={ESTADOS_MEXICO}
                 value={contact.estado}
+                disabled={readOnly}
                 onChange={(event, newValue) => {
+                  if (readOnly) return;
                   onChange({
                     target: {
                       name: "estado",
@@ -146,7 +184,7 @@ export const ContactFormModal = ({
                   });
                 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Estado" required fullWidth />
+                  <TextField {...params} label="Estado" required fullWidth disabled={readOnly} />
                 )}
               />
             </Grid>
@@ -160,6 +198,7 @@ export const ContactFormModal = ({
                 multiline
                 rows={2}
                 required
+                disabled={readOnly}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -170,7 +209,9 @@ export const ContactFormModal = ({
                 <DatePicker
                   label="Fecha de Nacimiento"
                   value={contact.fechaNacimiento}
+                  disabled={readOnly}
                   onChange={(newValue) => {
+                    if (readOnly) return;
                     onChange({
                       target: {
                         name: "fechaNacimiento",
@@ -182,8 +223,19 @@ export const ContactFormModal = ({
                     textField: {
                       fullWidth: true,
                       required: true,
+                      disabled: readOnly,
+                    },
+                    toolbar: {
+                      hidden: readOnly,
+                    },
+                    day: {
+                      disabled: readOnly,
+                    },
+                    actionBar: {
+                      hidden: readOnly,
                     },
                   }}
+                  readOnly={readOnly}
                 />
               </LocalizationProvider>
             </Grid>
@@ -196,15 +248,25 @@ export const ContactFormModal = ({
                 onChange={onChange}
                 multiline
                 rows={3}
+                disabled={readOnly}
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained" color="primary">
-            Guardar Cambios
+          <Button onClick={onClose}>
+            {readOnly ? "Cerrar" : "Cancelar"}
           </Button>
+          {!readOnly && (
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary"
+              disabled={saveDisabled}
+            >
+              Guardar Cambios
+            </Button>
+          )}
         </DialogActions>
       </form>
     </Dialog>
@@ -218,4 +280,9 @@ ContactFormModal.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
+  readOnly: PropTypes.bool,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  showActionButtons: PropTypes.bool,
+  saveDisabled: PropTypes.bool,
 };

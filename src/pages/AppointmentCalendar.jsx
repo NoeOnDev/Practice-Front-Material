@@ -45,6 +45,7 @@ export const AppointmentCalendar = () => {
     handleDeleteAppointment,
     renderEventContent,
     handleAttendComplete,
+    handleNewAppointment
   } = useAppointmentEvents();
 
   const handleOnboardingComplete = () => {
@@ -153,6 +154,7 @@ export const AppointmentCalendar = () => {
           onNext={handleNext}
           onToday={handleToday}
           onConfigClick={() => setConfigOpen(true)}
+          onNewAppointment={handleNewAppointment}
         />
 
         <Box
@@ -306,7 +308,7 @@ export const AppointmentCalendar = () => {
               startTime: calendarConfig.businessHours.startTime,
               endTime: calendarConfig.businessHours.endTime,
             }} */
-            
+
             // selectConstraint="businessHours"
             handleWindowResize={true}
             events={events}
