@@ -47,9 +47,14 @@ export const useAppointmentEvents = () => {
         if (
           error.response &&
           error.response.status === 403 &&
-          error.response.data.error_type === "business_type_required"
+          (error.response.data.error_type === "business_type_required" ||
+            error.response.data.error_type === "custom_fields_required")
         ) {
-          console.log("Se requiere seleccionar un tipo de negocio");
+          if (error.response.data.error_type === "business_type_required") {
+            console.log("Se requiere seleccionar un tipo de negocio");
+          } else {
+            console.log("Se requiere configurar campos personalizados");
+          }
 
           if (error.response.data.business_types?.business_types) {
             setBusinessTypes(error.response.data.business_types.business_types);
@@ -318,10 +323,10 @@ export const useAppointmentEvents = () => {
 
   const handleNewAppointment = () => {
     const startDate = new Date();
-    
+
     const endDate = new Date(startDate);
     endDate.setMinutes(endDate.getMinutes() + 30);
-    
+
     const customFieldsValues = {};
     formStructure.custom_fields.forEach((field) => {
       if (field.type === "boolean") {
@@ -336,7 +341,7 @@ export const useAppointmentEvents = () => {
         customFieldsValues[`custom_${field.id}`] = "";
       }
     });
-  
+
     setSelectedAppointment({
       title: "",
       contact: null,
@@ -345,8 +350,12 @@ export const useAppointmentEvents = () => {
       status: "pending",
       ...customFieldsValues,
     });
-    
+
     setOpenModal(true);
+  };
+
+  const handleCustomizationComplete = (updatedFormStructure) => {
+    setFormStructure(updatedFormStructure);
   };
 
   return {
@@ -368,5 +377,6 @@ export const useAppointmentEvents = () => {
     renderEventContent,
     handleAttendComplete,
     handleNewAppointment,
+    handleCustomizationComplete,
   };
 };

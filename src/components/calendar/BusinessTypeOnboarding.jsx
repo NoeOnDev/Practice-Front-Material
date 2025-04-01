@@ -10,9 +10,8 @@ import {
 import PropTypes from "prop-types";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { selectBusinessType } from "../../services/businessService";
+import { selectBusinessType, saveCustomFields } from "../../services/businessService";
 import { TypeSelectionStep } from "./onboarding/TypeSelectionStep";
-import { getAppointmentFields } from "../../services/appointmentFieldService";
 import { FormPreviewStep } from "./onboarding/FormPreviewStep";
 import { CustomizeFormStep } from "./onboarding/CustomizeFormStep";
 
@@ -21,7 +20,6 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
   const [loading, setLoading] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [formStructure, setFormStructure] = useState(null);
-  const [customizationCompleted, setCustomizationCompleted] = useState(false);
 
   const steps = ["Seleccionar tipo de negocio", "Vista previa", "Personalizar"];
 
@@ -31,12 +29,8 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
     if (activeStep === 1) {
       try {
         setLoading(true);
-        await selectBusinessType(selectedType.id);
-
-        const fields = await getAppointmentFields();
-        
         setFormStructure({
-          custom_fields: fields
+          custom_fields: selectedType.fields || [],
         });
       } catch (error) {
         console.error("Error al preparar la personalización:", error);
@@ -55,12 +49,23 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
   };
 
   const handleFinish = async () => {
-    if (!selectedType) return;
-
     try {
       setLoading(true);
 
-      if (activeStep === 1) {
+      if (activeStep === 2) {
+        const customFields = formStructure?.custom_fields || [];
+
+        if (!confirm('¿Estás seguro de finalizar? Se guardarán todos los campos personalizados que has configurado.')) {
+          setLoading(false);
+          return;
+        }
+
+        await selectBusinessType(selectedType.id);
+
+        if (customFields.length > 0) {
+          await saveCustomFields(customFields);
+        }
+      } else {
         await selectBusinessType(selectedType.id);
       }
 
@@ -73,8 +78,8 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
     }
   };
 
-  const handleCustomizationComplete = () => {
-    setCustomizationCompleted(true);
+  const handleCustomizationComplete = (updatedFormStructure) => {
+    setFormStructure(updatedFormStructure);
   };
 
   const handleSkipCustomization = () => {
@@ -111,10 +116,7 @@ export const BusinessTypeOnboarding = ({ businessTypes, onComplete }) => {
     return false;
   };
 
-  const isFinishDisabled = () => {
-    if (activeStep === 2) return !customizationCompleted && loading;
-    return loading;
-  };
+  const isFinishDisabled = () => loading;
 
   return (
     <Box

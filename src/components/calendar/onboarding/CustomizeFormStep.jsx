@@ -31,12 +31,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { customScrollbarStyles } from "../../../utils/styleUtils";
 import PropTypes from "prop-types";
-import {
-  getAppointmentFields,
-  createAppointmentField,
-  updateAppointmentField,
-  deleteAppointmentField,
-} from "../../../services/appointmentFieldService";
 
 export const CustomizeFormStep = ({
   formStructure,
@@ -64,33 +58,25 @@ export const CustomizeFormStep = ({
   const [newOptionText, setNewOptionText] = useState("");
 
   useEffect(() => {
-    const loadFields = async () => {
+    const loadFields = () => {
       setLoading(true);
       try {
-        const fieldsData = await getAppointmentFields();
-        setFields(fieldsData);
-
-        if (fieldsData && fieldsData.length > 0) {
-          onComplete({
-            custom_fields: fieldsData,
-          });
-        }
-      } catch (error) {
-        console.error("Error obteniendo campos personalizados:", error);
+        let fieldsData = [];
 
         if (formStructure && formStructure.custom_fields) {
-          setFields(formStructure.custom_fields);
-          onComplete({
-            custom_fields: formStructure.custom_fields,
-          });
+          fieldsData = formStructure.custom_fields;
         } else if (selectedType && selectedType.fields) {
-          setFields(selectedType.fields);
-          onComplete({
-            custom_fields: selectedType.fields,
-          });
-        } else {
-          setFields([]);
+          fieldsData = selectedType.fields;
         }
+
+        setFields(fieldsData);
+
+        onComplete({
+          custom_fields: fieldsData,
+        });
+      } catch (error) {
+        console.error("Error configurando campos:", error);
+        setFields([]);
       } finally {
         setLoading(false);
       }
@@ -136,8 +122,6 @@ export const CustomizeFormStep = ({
     setDeleting(true);
 
     try {
-      await deleteAppointmentField(fieldToDelete.id);
-
       const updatedFields = fields.filter((f) => f.id !== fieldToDelete.id);
       setFields(updatedFields);
 
@@ -204,24 +188,30 @@ export const CustomizeFormStep = ({
 
     try {
       let savedField;
-
-      if (editingField) {
-        savedField = await updateAppointmentField(editingField.id, fieldForm);
-      } else {
-        savedField = await createAppointmentField(fieldForm);
-      }
-
       let updatedFields;
+
       if (editingField) {
+        savedField = {
+          ...fieldForm,
+          id: editingField.id,
+        };
+
         updatedFields = fields.map((field) =>
           field.id === savedField.id ? savedField : field
         );
       } else {
+        const tempId = -1 * Date.now();
+        savedField = {
+          ...fieldForm,
+          id: tempId,
+        };
+
         updatedFields = [...fields, savedField];
       }
 
       setFields(updatedFields);
 
+      // Notifica al componente padre los campos actualizados
       onComplete({
         custom_fields: updatedFields,
       });
@@ -231,6 +221,7 @@ export const CustomizeFormStep = ({
           ? "Campo actualizado correctamente"
           : "Campo creado correctamente"
       );
+
       setOpenFieldDialog(false);
     } catch (error) {
       console.error("Error al guardar campo:", error);
@@ -284,22 +275,36 @@ export const CustomizeFormStep = ({
       }}
     >
       <Typography variant="h5" gutterBottom textAlign="center" sx={{ mb: 3 }}>
-        Personaliza tu formulario
+        Personaliza los campos de atención
       </Typography>
 
       <Paper elevation={2} sx={{ p: 3, mb: 4, position: "relative" }}>
         <Typography variant="h6" gutterBottom>
-          Campos personalizados
+          Campos para la atención de citas
         </Typography>
 
         <Typography variant="body1" paragraph>
-          Personaliza los campos para <strong>{selectedType?.name}</strong>.
-          Puedes editar, eliminar o agregar nuevos campos según tus necesidades.
+          Personaliza los campos que utilizarás durante la atención de citas
+          para <strong>{selectedType?.name}</strong>. Puedes editar, eliminar o
+          agregar nuevos campos según tus necesidades.
         </Typography>
+
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          <Typography variant="body2" fontWeight="medium">
+            ¡Importante! Los cambios que realices aquí no se guardarán
+            permanentemente hasta que hagas clic en el botón
+            &ldquo;Finalizar&rdquo; al final del proceso.
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            Si sales de esta pantalla, recargas la página o cierras el navegador
+            antes de finalizar, perderás todos los cambios realizados en estos
+            campos.
+          </Typography>
+        </Alert>
 
         <Alert severity="info" sx={{ mb: 3 }}>
           Los campos básicos (Contacto, Título, Estado, Fechas) no pueden ser
-          modificados. Los cambios que realices se guardan automáticamente.
+          modificados. Los campos personalizados se utilizarán durante la atención de las citas.
         </Alert>
 
         {fields.length === 0 ? (
@@ -410,7 +415,7 @@ export const CustomizeFormStep = ({
 
       <Alert severity="info" sx={{ mb: 4 }}>
         No te preocupes si no estás seguro ahora. Podrás personalizar esta
-        configuración más adelante desde los ajustes de tu agenda.
+        configuración más adelante desde los ajustes de tu agenda, pero recuerda hacer clic en &ldquo;Finalizar&rdquo; para guardar los cambios actuales.
       </Alert>
 
       <Dialog

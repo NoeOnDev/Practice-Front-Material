@@ -45,3 +45,35 @@ export const selectBusinessType = async (businessTypeId) => {
     throw error;
   }
 };
+
+export const saveCustomFields = async (fields) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const data = {
+      fields: fields.map((field) => ({
+        name: field.name,
+        type: field.type,
+        required: field.required,
+        options: field.type === "select" ? field.options : undefined,
+        order: field.order,
+      })),
+    };
+
+    const response = await axios.post(
+      `${API_URL}/onboarding/custom-fields`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error al guardar los campos personalizados:", error);
+    throw error;
+  }
+};

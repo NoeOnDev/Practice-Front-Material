@@ -44,7 +44,6 @@ export const FormPreviewStep = ({ selectedType }) => {
         </Typography>
 
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          {/* Primera etapa: Creación de cita */}
           <Grid item xs={12} md={6}>
             <Paper
               elevation={1}
@@ -93,7 +92,6 @@ export const FormPreviewStep = ({ selectedType }) => {
             </Paper>
           </Grid>
 
-          {/* Segunda etapa: Atención de cita */}
           <Grid item xs={12} md={6}>
             <Paper
               elevation={1}
