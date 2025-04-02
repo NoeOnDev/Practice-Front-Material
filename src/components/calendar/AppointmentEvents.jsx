@@ -47,14 +47,9 @@ export const useAppointmentEvents = () => {
         if (
           error.response &&
           error.response.status === 403 &&
-          (error.response.data.error_type === "business_type_required" ||
-            error.response.data.error_type === "custom_fields_required")
+          error.response.data.error_type === "custom_fields_required"
         ) {
-          if (error.response.data.error_type === "business_type_required") {
-            console.log("Se requiere seleccionar un tipo de negocio");
-          } else {
-            console.log("Se requiere configurar campos personalizados");
-          }
+          console.log("Se requiere configurar campos personalizados");
 
           if (error.response.data.business_types?.business_types) {
             setBusinessTypes(error.response.data.business_types.business_types);
@@ -323,6 +318,8 @@ export const useAppointmentEvents = () => {
 
   const handleNewAppointment = () => {
     const startDate = new Date();
+    startDate.setSeconds(0);
+    startDate.setMilliseconds(0);
 
     const endDate = new Date(startDate);
     endDate.setMinutes(endDate.getMinutes() + 30);

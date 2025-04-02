@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getStatusColor } from "../utils/appointmentUtils";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -8,6 +9,10 @@ export const createAppointment = async (appointmentData) => {
 
     const formatDateToUTC = (dateValue) => {
       const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+
+      date.setSeconds(0);
+      date.setMilliseconds(0);
+
       return date.toISOString().slice(0, 19).replace("T", " ");
     };
 
@@ -75,19 +80,6 @@ export const getAppointments = async () => {
   }
 };
 
-const getStatusColor = (status) => {
-  switch (status) {
-    case "attended":
-      return "#4caf50";
-    case "pending":
-      return "#ff9800";
-    case "cancelled":
-      return "#f44336";
-    default:
-      return "#808080";
-  }
-};
-
 export const getAppointment = async (id) => {
   try {
     const token = localStorage.getItem("token");
@@ -134,16 +126,11 @@ export const updateAppointment = async (id, appointmentData) => {
     const token = localStorage.getItem("token");
 
     const formatDateToUTC = (dateValue) => {
-      let date;
-      
-      if (dateValue instanceof Date) {
-        date = dateValue;
-      } else if (typeof dateValue === 'string') {
-        date = new Date(dateValue);
-      } else {
-        date = new Date(dateValue);
-      }
-      
+      const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+
+      date.setSeconds(0);
+      date.setMilliseconds(0);
+
       return date.toISOString().slice(0, 19).replace("T", " ");
     };
 

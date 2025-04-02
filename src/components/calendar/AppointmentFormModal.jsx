@@ -7,6 +7,7 @@ import {
   Typography,
   Box,
   IconButton,
+  Chip,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { useState, useEffect, useRef } from "react";
@@ -18,6 +19,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { AppointmentForm } from "./AppointmentForm";
 import { AttendAppointmentModal } from "./AttendAppointmentModal";
 import { updateAppointment } from "../../services/appointmentService";
+import { getStatusInfo } from "../../utils/appointmentUtils";
 
 export const AppointmentFormModal = ({
   open,
@@ -89,10 +91,7 @@ export const AppointmentFormModal = ({
   };
 
   const handleAttendClick = () => {
-    onClose();
-    setTimeout(() => {
-      setAttendModalOpen(true);
-    }, 100);
+    setAttendModalOpen(true);
   };
 
   const handleCancelClick = async () => {
@@ -122,12 +121,13 @@ export const AppointmentFormModal = ({
     setAttendModalOpen(false);
   };
 
-  const handleAttendCompleteWrapper = () => {
-    setAttendModalOpen(false);
-    if (onAttendComplete) {
-      onAttendComplete();
-    }
-  };
+const handleAttendCompleteWrapper = () => {
+  setAttendModalOpen(false);
+  
+  if (onAttendComplete) {
+    onAttendComplete();
+  }
+};
 
   if (!open && !attendModalOpen) return null;
 
@@ -150,7 +150,17 @@ export const AppointmentFormModal = ({
                 alignItems: "center",
               }}
             >
-              <Typography variant="h6">{title}</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography variant="h6">{title}</Typography>
+                {appointment.id && (
+                  <Chip
+                    size="small"
+                    label={getStatusInfo(appointment.status).label}
+                    color={getStatusInfo(appointment.status).color}
+                    sx={{ ml: 1 }}
+                  />
+                )}
+              </Box>
               <Box>
                 {appointment.id && (
                   <>

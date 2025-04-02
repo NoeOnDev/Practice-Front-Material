@@ -2,10 +2,6 @@ import {
   Grid,
   TextField,
   Autocomplete,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   CircularProgress,
   Typography,
   Box,
@@ -85,7 +81,7 @@ export const AppointmentForm = ({
         />
       </Grid>
 
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12}>
         <TextField
           fullWidth
           label="Título de la Cita"
@@ -95,29 +91,6 @@ export const AppointmentForm = ({
           required
           disabled={isReadOnly}
         />
-      </Grid>
-
-      <Grid item xs={12} md={6}>
-        <FormControl fullWidth>
-          <InputLabel>Estado</InputLabel>
-          <Select
-            label="Estado"
-            name="status"
-            value={appointment?.status || "pending"}
-            onChange={onChange}
-            required
-            disabled={true}
-          >
-            <MenuItem value="pending">Pendiente</MenuItem>
-            <MenuItem
-              value="attended"
-              disabled={appointment?.status === "pending"}
-            >
-              Atendida
-            </MenuItem>
-            <MenuItem value="cancelled">Cancelada</MenuItem>
-          </Select>
-        </FormControl>
       </Grid>
 
       <Grid item xs={12} md={6}>

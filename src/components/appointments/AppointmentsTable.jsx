@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { customScrollbarStyles } from "../../utils/styleUtils";
 import { useState } from "react";
+import { renderStatusChip } from "../../utils/appointmentUtils";
 
 export const AppointmentsTable = ({
   appointments,
@@ -48,30 +49,6 @@ export const AppointmentsTable = ({
       appointment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       appointment.contactName.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const renderStatusChip = (status) => {
-    let color = "default";
-    let label = "Desconocido";
-
-    switch (status) {
-      case "pending":
-        color = "warning";
-        label = "Pendiente";
-        break;
-      case "attended":
-        color = "success";
-        label = "Atendida";
-        break;
-      case "cancelled":
-        color = "error";
-        label = "Cancelada";
-        break;
-      default:
-        break;
-    }
-
-    return <Chip size="small" label={label} color={color} />;
-  };
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -265,7 +242,11 @@ export const AppointmentsTable = ({
                           })}
                         </TableCell>
                         <TableCell>
-                          {renderStatusChip(appointment.status)}
+                          <Chip 
+                            size="small" 
+                            label={renderStatusChip(appointment.status).label}
+                            color={renderStatusChip(appointment.status).color} 
+                          />
                         </TableCell>
                         {customFields.map((field) => (
                           <TableCell

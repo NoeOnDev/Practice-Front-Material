@@ -6,9 +6,15 @@ import {
   DialogActions,
   Button,
   Typography,
+  IconButton,
+  Box,
+  Chip,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { AppointmentForm } from "../AppointmentForm";
+import { AttendAppointmentModal } from "../AttendAppointmentModal";
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import { getStatusInfo } from "../../../utils/appointmentUtils";
 
 export const FormPreviewModal = ({ open, onClose, businessType }) => {
   const [formValues, setFormValues] = useState({
@@ -28,6 +34,7 @@ export const FormPreviewModal = ({ open, onClose, businessType }) => {
   const [customFields, setCustomFields] = useState({});
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const [attendModalOpen, setAttendModalOpen] = useState(false);
 
   const sampleContacts = [
     {
@@ -50,33 +57,6 @@ export const FormPreviewModal = ({ open, onClose, businessType }) => {
     },
   ];
 
-  useEffect(() => {
-    if (businessType?.fields) {
-      setFormValues((prev) => ({
-        ...prev,
-        fields: businessType.fields,
-      }));
-
-      const initialCustomFields = {};
-      businessType.fields.forEach((field) => {
-        if (field.type === "boolean") {
-          initialCustomFields[`custom_${field.id}`] = false;
-        } else if (
-          field.type === "select" &&
-          field.options &&
-          field.options.length > 0
-        ) {
-          initialCustomFields[`custom_${field.id}`] = field.options[0];
-        } else if (field.type === "number") {
-          initialCustomFields[`custom_${field.id}`] = 0;
-        } else {
-          initialCustomFields[`custom_${field.id}`] = "";
-        }
-      });
-      setCustomFields(initialCustomFields);
-    }
-  }, [businessType, open]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormValues({
@@ -85,40 +65,97 @@ export const FormPreviewModal = ({ open, onClose, businessType }) => {
     });
   };
 
-  const handleCustomFieldChange = (event) => {
-    const { name, value, checked, type } = event.target;
-    if (type === "checkbox") {
-      setCustomFields({
-        ...customFields,
-        [name]: checked,
-      });
-    } else {
-      setCustomFields({
-        ...customFields,
-        [name]: value,
-      });
-    }
+  const handleCustomFieldChange = (name, value) => {
+    setCustomFields({
+      ...customFields,
+      [name]: value,
+    });
   };
 
   const handleInputChange = (newValue) => {
     setInputValue(newValue);
-    setLoading(true);
-    setTimeout(() => setLoading(false), 0);
   };
+
+  const handleAttendClick = () => {
+    setAttendModalOpen(true);
+  };
+
+  const handleAttendClose = () => {
+    setAttendModalOpen(false);
+  };
+
+  const handleAttendComplete = () => {
+    setAttendModalOpen(false);
+    alert("La cita ha sido atendida exitosamente (Simulación)");
+    setFormValues({
+      ...formValues,
+      status: "attended",
+    });
+  };
+
+  useEffect(() => {
+    if (businessType?.fields) {
+      const initialCustomFields = {};
+      businessType.fields.forEach((field) => {
+        initialCustomFields[`custom_${field.id}`] =
+          field.type === "boolean"
+            ? false
+            : field.type === "select" && field.options?.length > 0
+              ? field.options[0]
+              : "";
+      });
+      setCustomFields(initialCustomFields);
+    }
+    setTimeout(() => setLoading(false), 0);
+  }, [businessType]);
 
   if (!businessType) return null;
 
+  const showAttendButton = formValues.status === "pending";
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Typography variant="h6">
-          Vista previa del formulario: {businessType.name}
-        </Typography>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="h6">
+            Vista previa: {businessType.name}
+          </Typography>
+          <Chip
+            size="small"
+            label={getStatusInfo(formValues.status).label}
+            color={getStatusInfo(formValues.status).color}
+            sx={{ ml: 1 }}
+          />
+        </Box>
+        {showAttendButton && (
+          <IconButton
+            color="primary"
+            onClick={handleAttendClick}
+            size="small"
+            sx={{ mr: 1 }}
+            title="Atender cita (Simulación)"
+          >
+            <MedicalServicesIcon />
+          </IconButton>
+        )}
       </DialogTitle>
       <DialogContent sx={{ pt: 1 }}>
         <Typography variant="body2" color="text.secondary" paragraph>
           Esta es una vista previa interactiva del formulario para citas del
           tipo &quot;{businessType.name}&quot;.
+          {showAttendButton && (
+            <span>
+              {" "}
+              Puedes hacer clic en el botón de atender cita para ver los campos
+              de atención.
+            </span>
+          )}
         </Typography>
 
         <AppointmentForm
@@ -139,6 +176,14 @@ export const FormPreviewModal = ({ open, onClose, businessType }) => {
           Cerrar
         </Button>
       </DialogActions>
+
+      <AttendAppointmentModal
+        open={attendModalOpen}
+        appointment={formValues}
+        onClose={handleAttendClose}
+        formStructure={{ custom_fields: businessType?.fields || [] }}
+        onAttendComplete={handleAttendComplete}
+      />
     </Dialog>
   );
 };
