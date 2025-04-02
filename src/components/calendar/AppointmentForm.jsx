@@ -149,7 +149,7 @@ export const AppointmentForm = ({
               acc[`custom_${fv.field.id}`] = fv.value;
               return acc;
             }, {})}
-            readOnly={true}
+            readOnly={isReadOnly}
             gridSize={{ xs: 12, sm: 12 }}
           />
         )}

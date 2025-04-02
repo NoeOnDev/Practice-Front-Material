@@ -15,7 +15,7 @@ import { BusinessTypeOnboarding } from "../components/calendar/BusinessTypeOnboa
 import { customScrollbarStyles } from "../utils/styleUtils";
 
 export const AppointmentCalendar = () => {
-  const [viewMode, setViewMode] = useState("dayGridMonth");
+  const [viewMode, setViewMode] = useState("timeGridWeek");
   const [title, setTitle] = useState("");
   const calendarRef = useRef(null);
   const containerRef = useRef(null);

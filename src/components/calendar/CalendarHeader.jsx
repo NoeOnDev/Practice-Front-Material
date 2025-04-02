@@ -110,11 +110,11 @@ export const CalendarHeader = ({
                 },
               }}
             >
-              <MenuItem value="multiMonthYear">Año</MenuItem>
-              <MenuItem value="dayGridMonth">Mes</MenuItem>
+              {/* <MenuItem value="multiMonthYear">Año</MenuItem> */}
+              <MenuItem value="dayGridMonth">Mes</MenuItem> 
               <MenuItem value="timeGridWeek">Semana</MenuItem>
               <MenuItem value="timeGridDay">Día</MenuItem>
-              <MenuItem value="listWeek">Lista</MenuItem>
+              {/* <MenuItem value="listWeek">Lista</MenuItem> */}
             </Select>
           </FormControl>
         </Box>
