@@ -1,12 +1,10 @@
 import { Box, Button, Typography } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 
 export const AppointmentsHeader = ({
   selectedCount,
   onMultipleDelete,
-  onCreateNew,
   setSelected,
 }) => {
   return (
@@ -54,22 +52,6 @@ export const AppointmentsHeader = ({
         >
           Eliminar ({selectedCount}) citas
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={onCreateNew}
-          startIcon={<AddIcon />}
-          sx={{
-            fontSize: {
-              xs: "0.875rem",
-              sm: "0.9rem",
-            },
-            py: { xs: 1 },
-            px: { xs: 2 },
-          }}
-        >
-          Nueva Cita
-        </Button>
       </Box>
     </Box>
   );
@@ -78,6 +60,5 @@ export const AppointmentsHeader = ({
 AppointmentsHeader.propTypes = {
   selectedCount: PropTypes.number.isRequired,
   onMultipleDelete: PropTypes.func.isRequired,
-  onCreateNew: PropTypes.func.isRequired,
   setSelected: PropTypes.func.isRequired,
 };

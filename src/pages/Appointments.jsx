@@ -1,24 +1,28 @@
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Paper,
-} from "@mui/material";
 import { useState, useEffect } from "react";
-import { getAppointmentsRaw, deleteAppointment } from "../services/appointmentService";
+import { Box, Typography, CircularProgress, Paper } from "@mui/material";
 import { AppointmentsTable } from "../components/appointments/AppointmentsTable";
 import { AppointmentsHeader } from "../components/appointments/AppointmentsHeader";
+import { AppointmentFormModal } from "../components/calendar/AppointmentFormModal";
+import {
+  getAppointmentsRaw,
+  deleteAppointment,
+  updateAppointment,
+} from "../services/appointmentService";
 
 export const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [customFields, setCustomFields] = useState([]);
   const [selected, setSelected] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [formStructure, setFormStructure] = useState({ custom_fields: [] });
 
   useEffect(() => {
     fetchAppointments();
@@ -113,14 +117,78 @@ export const Appointments = () => {
   };
 
   const handleNewAppointment = () => {
-    // Esta función se implementará más adelante para abrir un modal
-    // o redirigir a la página de creación de citas
-    console.log("Nueva cita");
+    const startDate = new Date();
+    startDate.setSeconds(0);
+    startDate.setMilliseconds(0);
+
+    const endDate = new Date(startDate);
+    endDate.setMinutes(endDate.getMinutes() + 30);
+
+    setSelectedAppointment({
+      title: "",
+      contact: null,
+      start: startDate,
+      end: endDate,
+      status: "pending",
+    });
+    setOpenModal(true);
   };
 
   const handleEditAppointment = (appointment) => {
-    // Implementar función para editar cita
-    console.log("Editar cita:", appointment);
+    const formattedAppointment = {
+      ...appointment,
+      start: new Date(appointment.start),
+      end: new Date(appointment.end),
+      contact: {
+        id: appointment.contact_id,
+        first_name: appointment.contactName.split(" ")[0],
+        last_name: appointment.contactName.split(" ").slice(1).join(" "),
+      },
+    };
+
+    setSelectedAppointment(formattedAppointment);
+    setOpenModal(true);
+  };
+
+  const handleModalClose = () => {
+    setOpenModal(false);
+    setSelectedAppointment(null);
+  };
+
+  const handleModalChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedAppointment({
+      ...selectedAppointment,
+      [name]: value,
+    });
+  };
+
+  const handleModalSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedAppointment) return;
+
+    try {
+      const appointmentData = {
+        title: selectedAppointment.title,
+        contact_id: selectedAppointment.contact?.id,
+        start: selectedAppointment.start,
+        end: selectedAppointment.end,
+        status: selectedAppointment.status,
+      };
+
+      await updateAppointment(selectedAppointment.id, appointmentData);
+      await fetchAppointments();
+      setOpenModal(false);
+      alert("Cita actualizada correctamente");
+    } catch (error) {
+      console.error("Error al actualizar cita:", error);
+      alert("Error al actualizar la cita");
+    }
+  };
+
+  const handleAttendComplete = async () => {
+    await fetchAppointments();
+    setOpenModal(false);
   };
 
   const handleDeleteAppointment = async (appointment) => {
@@ -203,9 +271,30 @@ export const Appointments = () => {
             onRowsPerPageChange={handleRowsPerPageChange}
             onEdit={handleEditAppointment}
             onDelete={handleDeleteAppointment}
+            selected={selected}
+            setSelected={setSelected}
           />
         )}
       </Paper>
+
+      <AppointmentFormModal
+        open={openModal}
+        appointment={selectedAppointment || {}}
+        onClose={handleModalClose}
+        onSubmit={handleModalSubmit}
+        onChange={handleModalChange}
+        onDelete={handleDeleteAppointment}
+        title={
+          selectedAppointment?.status === "attended" ||
+          selectedAppointment?.status === "cancelled"
+            ? "Detalles de la Cita"
+            : selectedAppointment?.id
+              ? "Editar Cita"
+              : "Nueva Cita"
+        }
+        formStructure={formStructure}
+        onAttendComplete={handleAttendComplete}
+      />
     </Box>
   );
 };

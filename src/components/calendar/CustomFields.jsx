@@ -89,7 +89,12 @@ export const CustomFields = ({
             control={
               <Checkbox
                 name={fieldId}
-                checked={fieldValue === true || fieldValue === "true"}
+                checked={
+                  fieldValue === true || 
+                  fieldValue === "true" || 
+                  fieldValue === "1" || 
+                  fieldValue === 1
+                }
                 onChange={onChange}
                 disabled={readOnly}
               />

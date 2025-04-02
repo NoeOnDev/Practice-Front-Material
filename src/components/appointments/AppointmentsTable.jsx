@@ -15,12 +15,14 @@ import {
   Typography,
   CircularProgress,
   Checkbox,
+  Tooltip,
+  Badge,
 } from "@mui/material";
 import {
-  Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
   SearchOff as SearchOffIcon,
+  MoreHoriz as MoreHorizIcon,
 } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import { format } from "date-fns";
@@ -38,10 +40,11 @@ export const AppointmentsTable = ({
   onRowsPerPageChange,
   onEdit,
   onDelete,
+  selected,
+  setSelected,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState([]);
 
   const filteredAppointments = appointments.filter(
     (appointment) =>
@@ -78,6 +81,9 @@ export const AppointmentsTable = ({
     setSearchQuery(value);
     setTimeout(() => setLoading(false), 300);
   };
+
+  const visibleCustomFields = customFields.slice(0, 3);
+  const hiddenFieldsCount = Math.max(0, customFields.length - 3);
 
   return (
     <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -170,11 +176,25 @@ export const AppointmentsTable = ({
                   <TableCell>Fecha</TableCell>
                   <TableCell>Hora</TableCell>
                   <TableCell>Estado</TableCell>
-                  {customFields.map((field) => (
+
+                  {visibleCustomFields.map((field) => (
                     <TableCell key={`header-${field.id}`}>
                       {field.name}
                     </TableCell>
                   ))}
+
+                  {hiddenFieldsCount > 0 && (
+                    <TableCell>
+                      <Tooltip
+                        title={`${hiddenFieldsCount} campos adicionales no mostrados`}
+                      >
+                        <Badge badgeContent={hiddenFieldsCount} color="primary">
+                          <MoreHorizIcon color="action" />
+                        </Badge>
+                      </Tooltip>
+                    </TableCell>
+                  )}
+
                   <TableCell align="center">Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -189,6 +209,7 @@ export const AppointmentsTable = ({
                         key={appointment.id}
                         hover
                         selected={isItemSelected}
+                        onClick={() => onEdit && onEdit(appointment)}
                       >
                         <TableCell padding="checkbox">
                           <Checkbox
@@ -242,13 +263,14 @@ export const AppointmentsTable = ({
                           })}
                         </TableCell>
                         <TableCell>
-                          <Chip 
-                            size="small" 
+                          <Chip
+                            size="small"
                             label={renderStatusChip(appointment.status).label}
-                            color={renderStatusChip(appointment.status).color} 
+                            color={renderStatusChip(appointment.status).color}
                           />
                         </TableCell>
-                        {customFields.map((field) => (
+
+                        {visibleCustomFields.map((field) => (
                           <TableCell
                             key={`cell-${appointment.id}-${field.id}`}
                             sx={{
@@ -262,16 +284,33 @@ export const AppointmentsTable = ({
                             {appointment[`custom_${field.id}`] || ""}
                           </TableCell>
                         ))}
+
+                        {hiddenFieldsCount > 0 && (
+                          <TableCell>
+                            <Tooltip
+                              title={
+                                <Box>
+                                  {customFields.slice(3).map((field) => (
+                                    <Typography
+                                      key={field.id}
+                                      variant="body2"
+                                      sx={{ mb: 0.5 }}
+                                    >
+                                      <strong>{field.name}:</strong>{" "}
+                                      {appointment[`custom_${field.id}`] || "-"}
+                                    </Typography>
+                                  ))}
+                                </Box>
+                              }
+                            >
+                              <IconButton size="small">
+                                <MoreHorizIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                        )}
+
                         <TableCell align="center">
-                          <IconButton
-                            color="primary"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEdit && onEdit(appointment);
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
                           <IconButton
                             color="error"
                             onClick={(e) => {
@@ -318,4 +357,6 @@ AppointmentsTable.propTypes = {
   onRowsPerPageChange: PropTypes.func.isRequired,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
+  selected: PropTypes.array.isRequired,
+  setSelected: PropTypes.func.isRequired,
 };
