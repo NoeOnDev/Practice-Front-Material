@@ -20,6 +20,12 @@ export const AttendAppointmentModal = ({
   formStructure = { custom_fields: [] },
   onAttendComplete,
 }) => {
+  useEffect(() => {
+    if (open) {
+      console.log("Campos para atender cita:", formStructure.custom_fields);
+    }
+  }, [open, formStructure]);
+
   const [customFieldValues, setCustomFieldValues] = useState({});
   const [submitting, setSubmitting] = useState(false);
 

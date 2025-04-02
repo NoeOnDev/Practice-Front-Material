@@ -215,26 +215,78 @@ export const AppointmentsTable = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {appointments
-                  .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-                  .map((appointment) => {
-                    const isItemSelected = isSelected(appointment.id);
+                {appointments.map((appointment) => {
+                  const isItemSelected = isSelected(appointment.id);
 
-                    return (
-                      <TableRow
-                        key={appointment.id}
-                        hover
-                        selected={isItemSelected}
-                        onClick={() => onEdit && onEdit(appointment)}
+                  return (
+                    <TableRow
+                      key={appointment.id}
+                      hover
+                      selected={isItemSelected}
+                      onClick={() => onEdit && onEdit(appointment)}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={isItemSelected}
+                          onChange={() => handleSelect(appointment.id)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          cursor: "pointer",
+                          maxWidth: 160,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
                       >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={isItemSelected}
-                            onChange={() => handleSelect(appointment.id)}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </TableCell>
+                        {appointment.contactName}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          cursor: "pointer",
+                          maxWidth: 160,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {appointment.title}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          cursor: "pointer",
+                        }}
+                      >
+                        {format(new Date(appointment.start), "dd/MM/yyyy", {
+                          locale: es,
+                        })}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          cursor: "pointer",
+                        }}
+                      >
+                        {format(new Date(appointment.start), "HH:mm", {
+                          locale: es,
+                        })}
+                        {" - "}
+                        {format(new Date(appointment.end), "HH:mm", {
+                          locale: es,
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          size="small"
+                          label={renderStatusChip(appointment.status).label}
+                          color={renderStatusChip(appointment.status).color}
+                        />
+                      </TableCell>
+
+                      {visibleCustomFields.map((field) => (
                         <TableCell
+                          key={`cell-${appointment.id}-${field.id}`}
                           sx={{
                             cursor: "pointer",
                             maxWidth: 160,
@@ -243,103 +295,49 @@ export const AppointmentsTable = ({
                             whiteSpace: "nowrap",
                           }}
                         >
-                          {appointment.contactName}
+                          {appointment[`custom_${field.id}`] || ""}
                         </TableCell>
-                        <TableCell
-                          sx={{
-                            cursor: "pointer",
-                            maxWidth: 160,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {appointment.title}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            cursor: "pointer",
-                          }}
-                        >
-                          {format(new Date(appointment.start), "dd/MM/yyyy", {
-                            locale: es,
-                          })}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            cursor: "pointer",
-                          }}
-                        >
-                          {format(new Date(appointment.start), "HH:mm", {
-                            locale: es,
-                          })}
-                          {" - "}
-                          {format(new Date(appointment.end), "HH:mm", {
-                            locale: es,
-                          })}
-                        </TableCell>
+                      ))}
+
+                      {hiddenFieldsCount > 0 && (
                         <TableCell>
-                          <Chip
-                            size="small"
-                            label={renderStatusChip(appointment.status).label}
-                            color={renderStatusChip(appointment.status).color}
-                          />
-                        </TableCell>
-
-                        {visibleCustomFields.map((field) => (
-                          <TableCell
-                            key={`cell-${appointment.id}-${field.id}`}
-                            sx={{
-                              cursor: "pointer",
-                              maxWidth: 160,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
+                          <Tooltip
+                            title={
+                              <Box>
+                                {customFields.slice(3).map((field) => (
+                                  <Typography
+                                    key={field.id}
+                                    variant="body2"
+                                    sx={{ mb: 0.5 }}
+                                  >
+                                    <strong>{field.name}:</strong>{" "}
+                                    {appointment[`custom_${field.id}`] || "-"}
+                                  </Typography>
+                                ))}
+                              </Box>
+                            }
                           >
-                            {appointment[`custom_${field.id}`] || ""}
-                          </TableCell>
-                        ))}
-
-                        {hiddenFieldsCount > 0 && (
-                          <TableCell>
-                            <Tooltip
-                              title={
-                                <Box>
-                                  {customFields.slice(3).map((field) => (
-                                    <Typography
-                                      key={field.id}
-                                      variant="body2"
-                                      sx={{ mb: 0.5 }}
-                                    >
-                                      <strong>{field.name}:</strong>{" "}
-                                      {appointment[`custom_${field.id}`] || "-"}
-                                    </Typography>
-                                  ))}
-                                </Box>
-                              }
-                            >
-                              <IconButton size="small">
-                                <MoreHorizIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        )}
-
-                        <TableCell align="center">
-                          <IconButton
-                            color="error"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete && onDelete(appointment);
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                            <IconButton size="small">
+                              <MoreHorizIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                         </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                      )}
+
+                      <TableCell align="center">
+                        <IconButton
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete && onDelete(appointment);
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

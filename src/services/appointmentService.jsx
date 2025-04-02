@@ -264,3 +264,54 @@ export const getAppointmentsAndSearch = async (params = {}) => {
     throw error;
   }
 };
+
+export const getExportColumns = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/appointments/export-columns`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data.columns;
+  } catch (error) {
+    console.error("Error obteniendo columnas para exportación:", error);
+    throw error;
+  }
+};
+
+export const exportAppointments = async (columns = []) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    let url = `${API_URL}/appointments/export`;
+    if (columns.length > 0) {
+      const params = new URLSearchParams();
+      columns.forEach((column) => {
+        params.append("columns[]", column);
+      });
+      url = `${url}?${params.toString()}`;
+    }
+
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: "blob",
+    });
+
+    const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.setAttribute("download", "citas.csv");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    return true;
+  } catch (error) {
+    console.error("Error exportando citas:", error);
+    throw error;
+  }
+};

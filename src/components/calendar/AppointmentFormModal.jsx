@@ -129,6 +129,12 @@ const handleAttendCompleteWrapper = () => {
   }
 };
 
+  useEffect(() => {
+    if (open && formStructure) {
+      console.log("FormStructure en modal:", formStructure);
+    }
+  }, [open, formStructure]);
+
   if (!open && !attendModalOpen) return null;
 
   const showAttendButton = appointment.id && appointment.status === "pending";

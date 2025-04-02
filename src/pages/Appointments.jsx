@@ -9,10 +9,12 @@ import {
   updateAppointment,
 } from "../services/appointmentService";
 import { getContactsAndSearch } from "../services/contactService";
+import { getAppointmentFields } from "../services/appointmentFieldService"; // Añade esta importación
 import { useDebounce } from "../hooks/useDebounce";
 
 export const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -24,6 +26,7 @@ export const Appointments = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [contacts, setContacts] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [contactsLoading, setContactsLoading] = useState(false);
 
   const [openModal, setOpenModal] = useState(false);
@@ -55,6 +58,21 @@ export const Appointments = () => {
     loadContacts();
   }, []);
 
+  useEffect(() => {
+    const loadCustomFields = async () => {
+      try {
+        const fields = await getAppointmentFields();
+        setFormStructure({
+          custom_fields: fields,
+        });
+      } catch (error) {
+        console.error("Error cargando campos personalizados:", error);
+      }
+    };
+
+    loadCustomFields();
+  }, []);
+
   const handleSearch = useDebounce(
     useCallback(
       async (query) => {
@@ -65,7 +83,7 @@ export const Appointments = () => {
             page,
             per_page: rowsPerPage,
             ...Object.fromEntries(
-              Object.entries(filters).filter(([_, value]) => value !== null)
+              Object.entries(filters).filter(([key, value]) => value !== null)
             ),
           };
           const response = await getAppointmentsAndSearch(searchParams);
@@ -105,7 +123,7 @@ export const Appointments = () => {
           page: 1,
           per_page: rowsPerPage,
           ...Object.fromEntries(
-            Object.entries(filters).filter(([_, value]) => value !== null)
+            Object.entries(filters).filter(([key, value]) => value !== null)
           ),
         };
         const response = await getAppointmentsAndSearch(searchParams);
@@ -203,7 +221,7 @@ export const Appointments = () => {
         page,
         per_page: rowsPerPage,
         ...Object.fromEntries(
-          Object.entries(filters).filter(([_, value]) => value !== null)
+          Object.entries(filters).filter(([key, value]) => value !== null)
         ),
       };
       const response = await getAppointmentsAndSearch(searchParams);
@@ -231,6 +249,7 @@ export const Appointments = () => {
   };
 
   const handlePageChange = (event, newPage) => {
+    setSearchLoading(true);
     setPage(newPage);
   };
 
@@ -471,8 +490,8 @@ export const Appointments = () => {
           selectedAppointment?.status === "cancelled"
             ? "Detalles de la Cita"
             : selectedAppointment?.id
-            ? "Editar Cita"
-            : "Nueva Cita"
+              ? "Editar Cita"
+              : "Nueva Cita"
         }
         formStructure={formStructure}
         onAttendComplete={handleAttendComplete}
