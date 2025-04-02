@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Box, Typography, CircularProgress, Paper } from "@mui/material";
 import { AppointmentsTable } from "../components/appointments/AppointmentsTable";
 import { AppointmentsHeader } from "../components/appointments/AppointmentsHeader";
 import { AppointmentFormModal } from "../components/calendar/AppointmentFormModal";
 import {
-  getAppointmentsRaw,
+  getAppointmentsAndSearch,
   deleteAppointment,
   updateAppointment,
 } from "../services/appointmentService";
+import { getContactsAndSearch } from "../services/contactService";
+import { useDebounce } from "../hooks/useDebounce";
 
 export const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -19,41 +21,126 @@ export const Appointments = () => {
   const [customFields, setCustomFields] = useState([]);
   const [selected, setSelected] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [contacts, setContacts] = useState([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [formStructure, setFormStructure] = useState({ custom_fields: [] });
 
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
+  const [filters, setFilters] = useState({
+    status: null,
+    start_date: null,
+    end_date: null,
+    contact_id: null,
+    sort_by: "start",
+    sort_order: "desc",
+  });
 
-  const fetchAppointments = async () => {
+  const loadContacts = async () => {
     try {
-      setLoading(true);
-      const response = await getAppointmentsRaw();
-
-      const fetchedAppointments = response.data;
-
-      const allFields = extractCustomFields(fetchedAppointments);
-      setCustomFields(allFields);
-
-      const processedAppointments = processAppointmentsWithCustomFields(
-        fetchedAppointments,
-        allFields
-      );
-
-      setAppointments(processedAppointments);
-      setTotalRows(response.total || fetchedAppointments.length);
-      setError(null);
+      setContactsLoading(true);
+      const response = await getContactsAndSearch("", 1, 100);
+      setContacts(response.data);
     } catch (error) {
-      console.error("Error al cargar las citas:", error);
-      setError("Error al cargar las citas");
-      setAppointments([]);
+      console.error("Error al cargar contactos para filtro:", error);
     } finally {
-      setLoading(false);
+      setContactsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadContacts();
+  }, []);
+
+  const handleSearch = useDebounce(
+    useCallback(
+      async (query) => {
+        try {
+          setSearchLoading(true);
+          const searchParams = {
+            query,
+            page,
+            per_page: rowsPerPage,
+            ...Object.fromEntries(
+              Object.entries(filters).filter(([_, value]) => value !== null)
+            ),
+          };
+          const response = await getAppointmentsAndSearch(searchParams);
+
+          const fetchedAppointments = response.data;
+
+          const allFields = extractCustomFields(fetchedAppointments);
+          setCustomFields(allFields);
+
+          const processedAppointments = processAppointmentsWithCustomFields(
+            fetchedAppointments,
+            allFields
+          );
+
+          setAppointments(processedAppointments);
+          setTotalRows(response.total);
+          setError(null);
+        } catch (error) {
+          console.error("Error al buscar citas:", error);
+          setError("Error al buscar citas");
+          setAppointments([]);
+        } finally {
+          setSearchLoading(false);
+        }
+      },
+      [page, rowsPerPage, filters]
+    ),
+    300
+  );
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setInitialLoading(true);
+        const searchParams = {
+          query: "",
+          page: 1,
+          per_page: rowsPerPage,
+          ...Object.fromEntries(
+            Object.entries(filters).filter(([_, value]) => value !== null)
+          ),
+        };
+        const response = await getAppointmentsAndSearch(searchParams);
+
+        const fetchedAppointments = response.data;
+
+        const allFields = extractCustomFields(fetchedAppointments);
+        setCustomFields(allFields);
+
+        const processedAppointments = processAppointmentsWithCustomFields(
+          fetchedAppointments,
+          allFields
+        );
+
+        setAppointments(processedAppointments);
+        setTotalRows(response.total);
+        setError(null);
+      } catch (error) {
+        console.error("Error al cargar las citas:", error);
+        setError("Error al cargar las citas");
+        setAppointments([]);
+      } finally {
+        setInitialLoading(false);
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [rowsPerPage, filters]);
+
+  useEffect(() => {
+    if (!initialLoading) {
+      handleSearch(searchQuery);
+    }
+  }, [searchQuery, page, rowsPerPage, filters, handleSearch, initialLoading]);
 
   const extractCustomFields = (appointments) => {
     const fieldsMap = new Map();
@@ -85,6 +172,7 @@ export const Appointments = () => {
         status: appointment.status,
         contactName: `${appointment.contact.first_name} ${appointment.contact.last_name}`,
         contact: appointment.contact,
+        contact_id: appointment.contact.id,
         created_at: appointment.created_at,
         updated_at: appointment.updated_at,
         field_values: appointment.field_values,
@@ -105,6 +193,41 @@ export const Appointments = () => {
 
       return processedAppointment;
     });
+  };
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const searchParams = {
+        query: searchQuery,
+        page,
+        per_page: rowsPerPage,
+        ...Object.fromEntries(
+          Object.entries(filters).filter(([_, value]) => value !== null)
+        ),
+      };
+      const response = await getAppointmentsAndSearch(searchParams);
+
+      const fetchedAppointments = response.data;
+
+      const allFields = extractCustomFields(fetchedAppointments);
+      setCustomFields(allFields);
+
+      const processedAppointments = processAppointmentsWithCustomFields(
+        fetchedAppointments,
+        allFields
+      );
+
+      setAppointments(processedAppointments);
+      setTotalRows(response.total);
+      setError(null);
+    } catch (error) {
+      console.error("Error al cargar las citas:", error);
+      setError("Error al cargar las citas");
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePageChange = (event, newPage) => {
@@ -194,8 +317,23 @@ export const Appointments = () => {
   const handleDeleteAppointment = async (appointment) => {
     if (confirm(`¿Estás seguro de eliminar la cita "${appointment.title}"?`)) {
       try {
-        await deleteAppointment(appointment.id);
-        await fetchAppointments();
+        const response = await deleteAppointment(appointment.id);
+
+        if (response.appointments) {
+          const allFields = extractCustomFields(response.appointments);
+          setCustomFields(allFields);
+
+          const processedAppointments = processAppointmentsWithCustomFields(
+            response.appointments,
+            allFields
+          );
+
+          setAppointments(processedAppointments);
+          setTotalRows(response.appointments.length);
+        } else {
+          await handleSearch(searchQuery);
+        }
+
         alert("Cita eliminada exitosamente");
       } catch (error) {
         console.error("Error al eliminar la cita:", error);
@@ -207,10 +345,26 @@ export const Appointments = () => {
   const handleMultipleDelete = async () => {
     if (confirm(`¿Estás seguro de eliminar ${selected.length} citas?`)) {
       try {
+        let lastResponse = null;
         for (const id of selected) {
-          await deleteAppointment(id);
+          lastResponse = await deleteAppointment(id);
         }
-        await fetchAppointments();
+
+        if (lastResponse && lastResponse.appointments) {
+          const allFields = extractCustomFields(lastResponse.appointments);
+          setCustomFields(allFields);
+
+          const processedAppointments = processAppointmentsWithCustomFields(
+            lastResponse.appointments,
+            allFields
+          );
+
+          setAppointments(processedAppointments);
+          setTotalRows(lastResponse.appointments.length);
+        } else {
+          await fetchAppointments();
+        }
+
         setSelected([]);
         alert("Citas eliminadas exitosamente");
       } catch (error) {
@@ -220,7 +374,28 @@ export const Appointments = () => {
     }
   };
 
-  if (loading) {
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+
+    setPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      status: null,
+      start_date: null,
+      end_date: null,
+      contact_id: null,
+      sort_by: "start",
+      sort_order: "desc",
+    });
+    setPage(1);
+  };
+
+  if (initialLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
         <CircularProgress />
@@ -273,6 +448,13 @@ export const Appointments = () => {
             onDelete={handleDeleteAppointment}
             selected={selected}
             setSelected={setSelected}
+            searchQuery={searchQuery}
+            onSearchChange={(value) => setSearchQuery(value)}
+            loading={searchLoading}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={handleClearFilters}
+            contacts={contacts}
           />
         )}
       </Paper>
@@ -289,8 +471,8 @@ export const Appointments = () => {
           selectedAppointment?.status === "cancelled"
             ? "Detalles de la Cita"
             : selectedAppointment?.id
-              ? "Editar Cita"
-              : "Nueva Cita"
+            ? "Editar Cita"
+            : "Nueva Cita"
         }
         formStructure={formStructure}
         onAttendComplete={handleAttendComplete}

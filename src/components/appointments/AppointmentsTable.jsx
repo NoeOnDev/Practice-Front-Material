@@ -28,34 +28,36 @@ import PropTypes from "prop-types";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { customScrollbarStyles } from "../../utils/styleUtils";
-import { useState } from "react";
 import { renderStatusChip } from "../../utils/appointmentUtils";
+import { AppointmentFilters } from "./AppointmentFilters";
 
 export const AppointmentsTable = ({
   appointments,
   customFields,
   page,
   rowsPerPage,
+  totalRows,
   onPageChange,
   onRowsPerPageChange,
   onEdit,
   onDelete,
   selected,
   setSelected,
+  searchQuery,
+  onSearchChange,
+  loading,
+  filters,
+  onFilterChange,
+  onClearFilters,
+  contacts,
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const filteredAppointments = appointments.filter(
-    (appointment) =>
-      !searchQuery ||
-      appointment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      appointment.contactName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSearch = (value) => {
+    onSearchChange(value);
+  };
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelected(filteredAppointments.map((appointment) => appointment.id));
+      setSelected(appointments.map((appointment) => appointment.id));
     } else {
       setSelected([]);
     }
@@ -76,14 +78,19 @@ export const AppointmentsTable = ({
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
-  const handleSearch = (value) => {
-    setLoading(true);
-    setSearchQuery(value);
-    setTimeout(() => setLoading(false), 300);
-  };
-
   const visibleCustomFields = customFields.slice(0, 3);
   const hiddenFieldsCount = Math.max(0, customFields.length - 3);
+
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (filters.status) count++;
+    if (filters.start_date) count++;
+    if (filters.end_date) count++;
+    if (filters.contact_id) count++;
+    if (filters.sort_by && filters.sort_by !== "start") count++;
+    if (filters.sort_order && filters.sort_order !== "desc") count++;
+    return count;
+  };
 
   return (
     <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -122,7 +129,16 @@ export const AppointmentsTable = ({
         />
       </Box>
 
-      {filteredAppointments.length === 0 ? (
+      <AppointmentFilters
+        filters={filters}
+        onFilterChange={onFilterChange}
+        onClearFilters={onClearFilters}
+        contacts={contacts}
+        loading={loading}
+        activeFilterCount={getActiveFilterCount()}
+      />
+
+      {appointments.length === 0 ? (
         <Box
           sx={{
             flex: 1,
@@ -162,11 +178,11 @@ export const AppointmentsTable = ({
                     <Checkbox
                       indeterminate={
                         selected.length > 0 &&
-                        selected.length < filteredAppointments.length
+                        selected.length < appointments.length
                       }
                       checked={
-                        filteredAppointments.length > 0 &&
-                        selected.length === filteredAppointments.length
+                        appointments.length > 0 &&
+                        selected.length === appointments.length
                       }
                       onChange={handleSelectAll}
                     />
@@ -199,7 +215,7 @@ export const AppointmentsTable = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredAppointments
+                {appointments
                   .slice((page - 1) * rowsPerPage, page * rowsPerPage)
                   .map((appointment) => {
                     const isItemSelected = isSelected(appointment.id);
@@ -330,7 +346,7 @@ export const AppointmentsTable = ({
 
           <TablePagination
             component="div"
-            count={filteredAppointments.length}
+            count={totalRows}
             page={page - 1}
             onPageChange={(e, newPage) => onPageChange(e, newPage + 1)}
             rowsPerPage={rowsPerPage}
@@ -359,4 +375,11 @@ AppointmentsTable.propTypes = {
   onDelete: PropTypes.func,
   selected: PropTypes.array.isRequired,
   setSelected: PropTypes.func.isRequired,
+  searchQuery: PropTypes.string.isRequired,
+  onSearchChange: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  filters: PropTypes.object.isRequired,
+  onFilterChange: PropTypes.func.isRequired,
+  onClearFilters: PropTypes.func.isRequired,
+  contacts: PropTypes.array,
 };

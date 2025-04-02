@@ -236,3 +236,31 @@ export const getAppointmentsRaw = async () => {
     throw error;
   }
 };
+
+export const getAppointmentsAndSearch = async (params = {}) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const queryParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        queryParams.append(key, value);
+      }
+    });
+
+    const response = await axios.get(
+      `${API_URL}/appointments/search?${queryParams.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error buscando citas:", error);
+    throw error;
+  }
+};

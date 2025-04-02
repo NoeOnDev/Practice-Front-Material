@@ -8,6 +8,7 @@ import {
 } from "../../services/appointmentService";
 import { getBusinessTypes } from "../../services/businessService";
 import { getAppointmentFields } from "../../services/appointmentFieldService";
+import { getStatusColor } from "../../utils/appointmentUtils";
 
 export const useAppointmentEvents = () => {
   const [events, setEvents] = useState([]);
@@ -222,9 +223,26 @@ export const useAppointmentEvents = () => {
 
     if (confirm("¿Estás seguro de eliminar esta cita?")) {
       try {
-        await deleteAppointment(selectedAppointment.id);
-        const updatedAppointments = await getAppointments();
-        setEvents(updatedAppointments);
+        const response = await deleteAppointment(selectedAppointment.id);
+
+        if (response.appointments) {
+          const formattedEvents = response.appointments.map((appointment) => ({
+            id: appointment.id,
+            title: appointment.title,
+            start: appointment.start,
+            end: appointment.end,
+            status: appointment.status,
+            contactName: `${appointment.contact.first_name} ${appointment.contact.last_name}`,
+            backgroundColor: getStatusColor(appointment.status),
+            borderColor: getStatusColor(appointment.status),
+          }));
+
+          setEvents(formattedEvents);
+        } else {
+          const updatedAppointments = await getAppointments();
+          setEvents(updatedAppointments);
+        }
+
         handleModalClose();
       } catch (error) {
         console.error("Error al eliminar la cita:", error);
