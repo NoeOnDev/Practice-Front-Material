@@ -6,6 +6,7 @@ import { createTheme } from "@mui/material/styles";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import EventIcon from "@mui/icons-material/Event";
 import ScheduleIcon from "@mui/icons-material/Schedule";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
@@ -15,6 +16,7 @@ import { Appointments } from "../pages/Appointments";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { CircularProgress } from "@mui/material";
+import { AppointmentFieldsConfig } from "../pages/AppointmentFieldsConfig";
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -46,6 +48,9 @@ function DemoPageContent({ pathname }) {
       break;
     case "appointments":
       content = <Appointments />;
+      break;
+    case "settings":
+      content = <AppointmentFieldsConfig />;
       break;
     default:
       content = <Typography>Page not found</Typography>;
@@ -133,6 +138,11 @@ export const DashboardLayoutNavigationLinks = (props) => {
           segment: "contacts",
           title: "Lista de Contactos",
           icon: <ContactMailIcon />,
+        },
+        {
+          segment: "settings",
+          title: "Configuración",
+          icon: <SettingsIcon />,
         },
       ]}
       branding={{

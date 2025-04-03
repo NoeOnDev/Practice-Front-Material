@@ -9,8 +9,9 @@ import {
   updateAppointment,
 } from "../services/appointmentService";
 import { getContactsAndSearch } from "../services/contactService";
-import { getAppointmentFields } from "../services/appointmentFieldService"; // Añade esta importación
+import { getAppointmentFields } from "../services/appointmentFieldService";
 import { useDebounce } from "../hooks/useDebounce";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 export const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -454,6 +455,67 @@ export const Appointments = () => {
           <Typography color="error" sx={{ p: 3 }}>
             {error}
           </Typography>
+        ) : appointments.length === 0 && !searchQuery ? (
+          <Paper
+            sx={{
+              p: 4,
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 3,
+              backgroundColor: "background.default",
+            }}
+          >
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: 200,
+                height: 200,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <CalendarTodayIcon
+                sx={{
+                  fontSize: 120,
+                  color: "text.secondary",
+                  opacity: 0.7,
+                }}
+              />
+            </Box>
+            <Box sx={{ textAlign: "center" }}>
+              <Typography
+                variant="h5"
+                color="text.secondary"
+                gutterBottom
+                sx={{
+                  fontSize: {
+                    xs: "1.25rem",
+                    sm: "1.5rem",
+                  },
+                }}
+              >
+                No tienes citas guardadas
+              </Typography>
+              <Typography
+                color="text.secondary"
+                sx={{
+                  fontSize: {
+                    xs: "0.875rem",
+                    sm: "1rem",
+                  },
+                  maxWidth: 500,
+                  mx: "auto",
+                  mb: 3,
+                }}
+              >
+                Crea tu primera cita en el apartado de agenda.
+              </Typography>
+            </Box>
+          </Paper>
         ) : (
           <AppointmentsTable
             appointments={appointments}

@@ -294,7 +294,7 @@ export const Contacts = () => {
 
   const hasContactChanged = () => {
     if (!originalContact || !editingContact) return false;
-    
+
     return (
       originalContact.first_name !== editingContact.first_name ||
       originalContact.last_name !== editingContact.last_name ||
@@ -305,8 +305,8 @@ export const Contacts = () => {
       originalContact.estado !== editingContact.estado ||
       originalContact.address !== editingContact.address ||
       originalContact.notes !== editingContact.notes ||
-      JSON.stringify(originalContact.fechaNacimiento) !== 
-      JSON.stringify(editingContact.fechaNacimiento)
+      JSON.stringify(originalContact.fechaNacimiento) !==
+        JSON.stringify(editingContact.fechaNacimiento)
     );
   };
 
@@ -372,11 +372,15 @@ export const Contacts = () => {
 
       <Box sx={{ flex: 1, minHeight: 0 }}>
         {error ? (
-          <Paper sx={{ p: 3, textAlign: "center", height: "100%" }}>
+          <Paper
+            elevation={3}
+            sx={{ p: 3, textAlign: "center", height: "100%" }}
+          >
             <Typography color="error">{error}</Typography>
           </Paper>
         ) : contactos.length === 0 && !searchQuery ? (
           <Paper
+            elevation={3}
             sx={{
               p: 4,
               height: "100%",
@@ -526,7 +530,8 @@ export const Contacts = () => {
         <DialogTitle>Confirmar Eliminación Múltiple</DialogTitle>
         <DialogContent>
           <Typography>
-            ¿Estás seguro que deseas eliminar {multipleDeleteIds.length} contactos?
+            ¿Estás seguro que deseas eliminar {multipleDeleteIds.length}{" "}
+            contactos?
           </Typography>
           <Typography color="error" sx={{ mt: 1 }}>
             Esta acción no se puede deshacer.
